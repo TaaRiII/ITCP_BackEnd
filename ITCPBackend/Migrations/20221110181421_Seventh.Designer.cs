@@ -4,6 +4,7 @@ using ITCPBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    partial class ITCPBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20221110181421_Seventh")]
+    partial class Seventh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,46 +216,6 @@ namespace ITCPBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("employees");
-                });
-
-            modelBuilder.Entity("ITCPBackend.Model.FileUpload", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("AUDITED")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BPP")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CAC")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CV")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ITF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NSITF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PC")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PENCOM")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("fileUploads");
                 });
 
             modelBuilder.Entity("ITCPBackend.Model.GenComInfo", b =>

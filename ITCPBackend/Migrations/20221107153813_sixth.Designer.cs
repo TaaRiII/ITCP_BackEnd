@@ -4,6 +4,7 @@ using ITCPBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    partial class ITCPBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20221107153813_sixth")]
+    partial class sixth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,8 +32,7 @@ namespace ITCPBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("ClientId")
-                        .IsRequired()
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -49,7 +50,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -88,7 +89,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PhoneNumber")
+                    b.Property<long>("PhoneNumber")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Role")
@@ -97,7 +98,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -113,7 +114,7 @@ namespace ITCPBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -134,10 +135,10 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Nationality")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PhoneNumber")
+                    b.Property<long>("PhoneNumber")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -168,7 +169,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Status")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -187,7 +188,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -205,55 +206,15 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PhoneNumber")
+                    b.Property<long>("PhoneNumber")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.ToTable("employees");
-                });
-
-            modelBuilder.Entity("ITCPBackend.Model.FileUpload", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("AUDITED")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BPP")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CAC")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CV")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ITF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NSITF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PC")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PENCOM")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("fileUploads");
                 });
 
             modelBuilder.Entity("ITCPBackend.Model.GenComInfo", b =>
@@ -267,10 +228,10 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("CEOEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("CEOPhoneNo")
+                    b.Property<long>("CEOPhoneNo")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CoporateHeadQuater")
@@ -297,25 +258,25 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("OfficeLocation")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PrimaryContactPersonMobile")
+                    b.Property<long>("PrimaryContactPersonMobile")
                         .HasColumnType("bigint");
 
                     b.Property<string>("PrimaryContactPersonName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RCNumber")
+                    b.Property<int>("RCNumber")
                         .HasColumnType("int");
 
-                    b.Property<int?>("State")
+                    b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("TelPhone")
+                    b.Property<long>("TelPhone")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -331,7 +292,7 @@ namespace ITCPBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -358,7 +319,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("TechnicalSkill")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -374,7 +335,7 @@ namespace ITCPBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -392,7 +353,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -411,7 +372,7 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -432,10 +393,10 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Nationality")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PerShares")
+                    b.Property<int>("PerShares")
                         .HasColumnType("int");
 
-                    b.Property<int?>("status")
+                    b.Property<int>("status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -472,10 +433,10 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PhoneNo")
+                    b.Property<long>("PhoneNo")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("Status")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
