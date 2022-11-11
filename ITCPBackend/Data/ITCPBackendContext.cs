@@ -23,5 +23,7 @@ namespace ITCPBackend.Data
         public DbSet<ITCPBackend.Model.Management> managements { get; set; }
         public DbSet<ITCPBackend.Model.ServiceCategory> serviceCategories { get; set; }
         public DbSet<ITCPBackend.Model.Shareholder> shareholders { get; set; }
+        public DbSet<ITCPBackend.Model.Department> departments { get; set; }
+        public DbSet<ITCPBackend.Model.FileUpload> fileUploads { get; set; }
     }
 }
