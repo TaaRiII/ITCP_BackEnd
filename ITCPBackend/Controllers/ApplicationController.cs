@@ -229,6 +229,7 @@ namespace ITCPBackend.Controllers
                 //modelObj.ModifyDate = DateTime.Now;
                 FileUpload fileUpload = new FileUpload()
                 {
+                    Id = modelObj.Id,
                     BPP = modelObj.BPP != null ? UploadedFile(modelObj.BPP) : "",
                     PENCOM = modelObj.PENCOM != null ? UploadedFile(modelObj.PENCOM) : "",
                     ITF = modelObj.ITF != null ? UploadedFile(modelObj.ITF) : "",
