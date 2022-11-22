@@ -27,7 +27,7 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> LoginUser(LoginModel login)
         {
-            var loginUser = await _dbcontext.Users.Where(m => m.Username == login.UserName && m.Password == login.Password && m.Status == Constants.Status.Active).FirstOrDefaultAsync();
+            var loginUser = await _dbcontext.Users.Where(m => m.Username == login.username && m.Password == login.password && m.Status == Constants.Status.Active).FirstOrDefaultAsync();
             if (loginUser == null)
             {
                 var message = "Your Username and Password are wrong try again.";
@@ -37,10 +37,24 @@ namespace ITCPBackend.Controllers
             {
                 var message = "You are login Successfully";
                 string _token= JWTToken.Generate(loginUser);
-                return Ok(message);
+                var userObj = new
+                {
+                    username = loginUser.Username,
+                    name = loginUser.Name,
+                    email = loginUser.Email,
+                    role = int.Parse(loginUser.role) == 1 ? Constants.role.Client : "",
+                };
+
+                var responce = new ResponceModel()
+                {
+                    accesstoken = _token,
+                    message = message,
+                    user = userObj
+                };
+                return Ok(responce);
             }
         }
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetUser(int id = 0)
         {
             var UsersList = await _dbcontext.Users.Where(m => id != 0 ? m.Id == id : true).ToListAsync();
@@ -93,7 +107,7 @@ namespace ITCPBackend.Controllers
         {
             string EncruptedString = objModel.Email + "&&$" + DateTime.Now + "&&$" + objModel.Password + "&&$" + objModel.Role;
             var Encrupted = Crypto.Encrypt(EncruptedString);
-            string APIsString = "https://localhost:7231/users/verifyclient?emailToken=" + Encrupted;
+            string APIsString = "https://localhost:7231/api/users/verifyclient?emailToken=" + Encrupted;
             EmailSetting setting = new EmailSetting()
             {
                 ToEmail = objModel.Email,
