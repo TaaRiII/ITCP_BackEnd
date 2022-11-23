@@ -202,6 +202,36 @@ namespace ITCPBackend.Controllers
             smtpClient.Send(mail);
             return true;
         }
+        [HttpPost]
+        public async Task<IActionResult> LoginClient(LoginModel login)
+        {
+            var loginClients = await _dbcontext.clients.Where(m => m.Username == login.username && m.Password == login.password && m.status == Constants.Status.Active).FirstOrDefaultAsync();
+            if (loginClients == null)
+            {
+                var message = "Your Username and Password are wrong try again.";
+                return Ok(message);
+            }
+            else
+            {
+                var message = "You are login Successfully";
+                string _token = JWTToken.ClientGenerate(loginClients);
+                var ClientObj = new
+                {
+                    username = loginClients.Username,
+                    name = loginClients.Name,
+                    email = loginClients.Email,
+                    role = int.Parse(loginClients.Role) == 1 ? Constants.role.Client : "",
+                };
+
+                var responce = new ResponceModel()
+                {
+                    accesstoken = _token,
+                    message = message,
+                    user = ClientObj
+                };
+                return Ok(responce);
+            }
+        }
         #endregion
     }
 }
