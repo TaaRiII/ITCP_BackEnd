@@ -220,7 +220,7 @@ namespace ITCPBackend.Controllers
                     username = loginClients.Username,
                     name = loginClients.Name,
                     email = loginClients.Email,
-                    role = int.Parse(loginClients.Role) == 1 ? Constants.role.Client : "",
+                    role = Constants.role.Client,
                 };
 
                 var responce = new ResponceModel()
