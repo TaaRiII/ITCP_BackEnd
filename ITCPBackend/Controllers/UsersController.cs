@@ -108,10 +108,18 @@ namespace ITCPBackend.Controllers
             string EncruptedString = objModel.Email + "&&$" + DateTime.Now + "&&$" + objModel.Password + "&&$" + objModel.Role;
             var Encrupted = Crypto.Encrypt(EncruptedString);
             string APIsString = "https://localhost:7231/api/users/verifyclient?emailToken=" + Encrupted;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Hello!");
+            sb.AppendLine("Thanks for make account on ITCP!");
+            sb.AppendLine("If you want verify your account then click on blew link.");
+            sb.AppendLine(APIsString);
+            sb.AppendLine("Regards");
+            sb.AppendLine("ITCP Admin");
             EmailSetting setting = new EmailSetting()
             {
                 ToEmail = objModel.Email,
-                TokenString = APIsString,
+                EmailString = sb.ToString(),
+                EmailBody = "Verification Email For ITCP",
             };
             Client client = new Client()
             {
@@ -169,39 +177,6 @@ namespace ITCPBackend.Controllers
                 return true;
             }
         }
-        #endregion
-        #region Email 
-        [NonAction]
-        public bool SendEmail(EmailSetting setting)
-        {
-            string username = "info@cloudhawktech.com";
-            string password = "*?mD3NuO(8@8";
-            ICredentialsByHost credentials = new NetworkCredential(username, password);
-
-            SmtpClient smtpClient = new SmtpClient()
-            {
-                Host = "mail.cloudhawktech.com",
-                Port = 25,
-                EnableSsl = false,
-                Credentials = credentials
-            };
-            StringBuilder sb = new StringBuilder();
-            sb.Append("Hello!");
-            sb.AppendLine("Thanks for make account on ITCP!");
-            sb.AppendLine("If you want verify your account then click on blew link.");
-            sb.AppendLine(setting.TokenString);
-            sb.AppendLine("Regards");
-            sb.AppendLine("ITCP Admin");
-
-            MailMessage mail = new MailMessage();
-            mail.From = new MailAddress(username);
-            mail.To.Add(setting.ToEmail);
-            mail.Subject = "Verification Email For ITCP";
-            mail.Body = sb.ToString();
-
-            smtpClient.Send(mail);
-            return true;
-        }
         [HttpPost]
         public async Task<IActionResult> LoginClient(LoginModel login)
         {
@@ -231,6 +206,101 @@ namespace ITCPBackend.Controllers
                 };
                 return Ok(responce);
             }
+        }
+        #endregion
+        #region Email 
+        [NonAction]
+        public bool SendEmail(EmailSetting setting)
+        {
+            string username = "info@cloudhawktech.com";
+            string password = "*?mD3NuO(8@8";
+            ICredentialsByHost credentials = new NetworkCredential(username, password);
+
+            SmtpClient smtpClient = new SmtpClient()
+            {
+                Host = "mail.cloudhawktech.com",
+                Port = 25,
+                EnableSsl = false,
+                Credentials = credentials
+            };
+
+            MailMessage mail = new MailMessage();
+            mail.From = new MailAddress(username);
+            mail.To.Add(setting.ToEmail);
+            mail.Subject = setting.EmailBody;
+            mail.Body = setting.EmailString;
+
+            smtpClient.Send(mail);
+            return true;
+        }
+        #endregion
+        #region Client Forget Password
+        [HttpPost]
+        public IActionResult ForgetClient(string? email)
+        {
+            var UserObj =  _dbcontext.clients.Where(m => m.Email == email).FirstOrDefault();
+            var message = "";
+            if(UserObj != null)
+            {
+                string EncruptedString = UserObj.Email + "&&$" + DateTime.Now + "&&$" + UserObj.Id;
+                var Encrupted = Crypto.Encrypt(EncruptedString);
+                string APIsString = "http://localhost:4200/?Token=" + Encrupted;
+                StringBuilder sb = new StringBuilder();
+                sb.Append("Dear!");
+                sb.AppendLine("Member your forget password request for ITCP!");
+                sb.AppendLine("If you want to reset your account then click on blew link.");
+                sb.AppendLine(APIsString);
+                sb.AppendLine("Regards");
+                sb.AppendLine("ITCP Admin");
+                EmailSetting setting = new EmailSetting()
+                {
+                    ToEmail = UserObj.Email,
+                    EmailString = sb.ToString(),
+                    EmailBody = "Forget Password Request of ITCP."
+                };
+                SendEmail(setting);
+                message = "Email are send successfully.";
+            }
+            else
+            {
+                message = "Problem occure while sending email.";
+            }
+            return Ok(message);
+        }
+        [HttpPost]
+        public IActionResult PasswordChange(LoginModel login ,string Token)
+        {
+            var encrupted = Crypto.Decrypt(Token);
+            var TokenSplit = encrupted.Split("&&$");
+            string Email = TokenSplit[0];
+            int Id = int.Parse(TokenSplit[2]);
+            DateTime TokenTime = DateTime.Parse(TokenSplit[1]);
+            DateTime CurrentDate = DateTime.Now;
+            DateTime FifteenMin = DateTime.Now.AddMinutes(15);
+            var Message = "";
+            if (CurrentDate >= TokenTime && TokenTime <= FifteenMin)
+            {
+                var ClientObj = _dbcontext.clients.Where(m => m.Email == Email && m.Id == Id).FirstOrDefault();
+                if(ClientObj != null)
+                {
+                    ClientObj.ModifyBy = "Email Verification";
+                    ClientObj.ModifyDate = DateTime.Now;
+                    ClientObj.Password = login.password;
+                    ClientObj.status = Constants.Status.Active;
+                    _dbcontext.clients.Update(ClientObj);
+                    _dbcontext.SaveChanges();
+                    Message = "Password are change successfully";
+                }
+                else
+                {
+                    Message = "Forget Password False";
+                }
+            }
+            else
+            {
+                Message = "Token False";
+            }
+            return Ok(Message);
         }
         #endregion
     }
