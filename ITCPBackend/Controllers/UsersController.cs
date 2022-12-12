@@ -109,7 +109,7 @@ namespace ITCPBackend.Controllers
             var Encrupted = Crypto.Encrypt(EncruptedString);
             string APIsString = "https://localhost:7231/api/users/verifyclient?emailToken=" + Encrupted;
             StringBuilder sb = new StringBuilder();
-            sb.Append("Hello!");
+            sb.AppendLine("Hello!");
             sb.AppendLine("Thanks for make account on ITCP!");
             sb.AppendLine("If you want verify your account then click on blew link.");
             sb.AppendLine(APIsString);
@@ -244,9 +244,10 @@ namespace ITCPBackend.Controllers
             {
                 string EncruptedString = UserObj.Email + "&&$" + DateTime.Now + "&&$" + UserObj.Id;
                 var Encrupted = Crypto.Encrypt(EncruptedString);
-                string APIsString = "http://localhost:4200/?Token=" + Encrupted;
+                var en = Encrupted.Replace("+", "$%mdmd%$");
+                string APIsString = "http://localhost:4200/create-password?Token=" + en;
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Dear!");
+                sb.AppendLine("Dear!");
                 sb.AppendLine("Member your forget password request for ITCP!");
                 sb.AppendLine("If you want to reset your account then click on blew link.");
                 sb.AppendLine(APIsString);
@@ -268,9 +269,10 @@ namespace ITCPBackend.Controllers
             return Ok(message);
         }
         [HttpPost]
-        public IActionResult PasswordChange(LoginModel login ,string Token)
+        public IActionResult PasswordChange(PasswordModel login ,string Token)
         {
-            var encrupted = Crypto.Decrypt(Token);
+            var en = Token.Replace("$%mdmd%$", "+");
+            var encrupted = Crypto.Decrypt(en);
             var TokenSplit = encrupted.Split("&&$");
             string Email = TokenSplit[0];
             int Id = int.Parse(TokenSplit[2]);
