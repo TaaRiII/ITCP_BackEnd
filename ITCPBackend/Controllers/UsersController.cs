@@ -244,7 +244,7 @@ namespace ITCPBackend.Controllers
             {
                 string EncruptedString = UserObj.Email + "&&$" + DateTime.Now + "&&$" + UserObj.Id;
                 var Encrupted = Crypto.Encrypt(EncruptedString);
-                var en = Encrupted.Replace("+", "$%mdmd%$");
+                var en = Encrupted.Replace("+", "mdmd");
                 string APIsString = "http://localhost:4200/create-password?Token=" + en;
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("Dear!");
@@ -271,7 +271,7 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public IActionResult PasswordChange(PasswordModel login ,string Token)
         {
-            var en = Token.Replace("$%mdmd%$", "+");
+            var en = Token.Replace("mdmd", "+");
             var encrupted = Crypto.Decrypt(en);
             var TokenSplit = encrupted.Split("&&$");
             string Email = TokenSplit[0];
