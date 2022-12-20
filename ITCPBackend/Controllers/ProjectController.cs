@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITCPBackend.Controllers
 {
+    [Route("api/[controller]/[action]")]
+    [ApiController]
     public class ProjectController : Controller
     {
         private readonly ITCPBackendContext _dbcontext;
