@@ -81,26 +81,26 @@ namespace ITCPBackend.Controllers
                 return Ok();
             }
         }
-        [HttpPost]
-        public async Task<IActionResult> AddUpdateDepartment(Department obj)
-        {
-            if (obj.Id != 0)
-            {
-                obj.ModifyBy = "system";
-                obj.CreatedDate = DateTime.Now;
-                _dbcontext.departments.Update(obj);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                obj.CreatedBy = "System";
-                obj.CreatedDate = DateTime.Now;
-                _dbcontext.departments.Add(obj);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddUpdateDepartment(Department obj)
+        //{
+        //    if (obj.Id != 0)
+        //    {
+        //        obj.ModifyBy = "system";
+        //        obj.CreatedDate = DateTime.Now;
+        //        _dbcontext.departments.Update(obj);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        obj.CreatedBy = "System";
+        //        obj.CreatedDate = DateTime.Now;
+        //        _dbcontext.departments.Add(obj);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //}
         #region Client 
         [HttpPost]
         public IActionResult SignUpClient(SignupModel objModel)
