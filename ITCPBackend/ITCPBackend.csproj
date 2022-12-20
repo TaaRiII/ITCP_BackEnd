@@ -7,6 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\ApplicationController.cs" />
+    <Compile Remove="Controllers\BussinessTypesController.cs" />
+    <Compile Remove="Controllers\BussinussViewController.cs" />
+    <Compile Remove="Model\BussinessType.cs" />
+    <Compile Remove="Model\BussinessView.cs" />
+    <Compile Remove="Model\CompanyContactPerson.cs" />
+    <Compile Remove="Model\Department.cs" />
+    <Compile Remove="Model\Employee.cs" />
+    <Compile Remove="Model\FileUpload.cs" />
+    <Compile Remove="Model\GenComInfo.cs" />
+    <Compile Remove="Model\Management.cs" />
+    <Compile Remove="Model\ServiceCategory.cs" />
+    <Compile Remove="Model\Shareholder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="6.0.10" />

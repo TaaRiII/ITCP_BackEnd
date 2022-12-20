@@ -4,6 +4,7 @@ using ITCPBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    partial class ITCPBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20221219185552_OnNewModels")]
+    partial class OnNewModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,25 +70,6 @@ namespace ITCPBackend.Migrations
                     b.ToTable("clients");
                 });
 
-            modelBuilder.Entity("ITCPBackend.Model.CostBreakDown", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("cost_break_down");
-                });
-
             modelBuilder.Entity("ITCPBackend.Model.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -128,9 +111,6 @@ namespace ITCPBackend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("CostDescription")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
@@ -213,31 +193,6 @@ namespace ITCPBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("project_scopes");
-                });
-
-            modelBuilder.Entity("ITCPBackend.Model.ProjectStrategyAndState", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("CurrentState")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("JobState")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SustainabilityName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("project_strategy_and_state");
                 });
 
             modelBuilder.Entity("ITCPBackend.Model.Users", b =>
