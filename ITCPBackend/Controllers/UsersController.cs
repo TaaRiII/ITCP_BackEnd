@@ -42,7 +42,7 @@ namespace ITCPBackend.Controllers
                     username = loginUser.Username,
                     name = loginUser.Name,
                     email = loginUser.Email,
-                    role = int.Parse(loginUser.role) == 1 ? Constants.role.Client : "",
+                    role = 1,
                 };
 
                 var responce = new ResponceModel()
@@ -195,7 +195,7 @@ namespace ITCPBackend.Controllers
                     username = loginClients.Username,
                     name = loginClients.Name,
                     email = loginClients.Email,
-                    role = Constants.role.Client,
+                    role = 2,
                 };
 
                 var responce = new ResponceModel()
