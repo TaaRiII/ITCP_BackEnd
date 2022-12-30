@@ -16,6 +16,8 @@
         {
             public static string Admin = "Admin";
             public static string Client = "Client";
+            public static string SuperMDA = "SuperMDA";
+            public static string EntryUser = "EntryUser";
         }
     }
 
