@@ -195,7 +195,7 @@ namespace ITCPBackend.Controllers
                     username = loginClients.Username,
                     name = loginClients.Name,
                     email = loginClients.Email,
-                    role = (loginClients.Role == Constants.role.EntryUser ? Constants.role.EntryUser : loginClients.Role == Constants.role.SuperMDA ? Constants.role.SuperMDA : ""),
+                    role = loginClients.Role,
                 };
 
                 var responce = new ResponceModel()
