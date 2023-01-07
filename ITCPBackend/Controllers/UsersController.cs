@@ -305,5 +305,11 @@ namespace ITCPBackend.Controllers
             return Ok(Message);
         }
         #endregion
+
+
+        [HttpGet]
+        public string testt() {
+            return "Api is ruiing";
+        }
     }
 }
