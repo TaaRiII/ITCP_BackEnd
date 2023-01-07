@@ -131,7 +131,7 @@ namespace ITCPBackend.Controllers
                 PhoneNumber = objModel.PhoneNumber,
                 Username = objModel.Username,
                 status = Constants.Status.InActive,
-                Role = Constants.role.Client,
+                Role = objModel.Role,
             };
             _dbcontext.clients.Add(client);
             _dbcontext.SaveChanges();

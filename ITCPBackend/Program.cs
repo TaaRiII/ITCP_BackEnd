@@ -4,11 +4,17 @@ using ITCPBackend.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ITCPBackendContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ITCPBackendContext") ?? throw new InvalidOperationException("Connection string 'ITCPBackendContext' not found.")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ITCPBackendContext"), sqlServerOptionsAction:sqlOption =>
+    {
+        sqlOption.EnableRetryOnFailure(maxRetryCount: 10,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd:null);
+    } ));
+//?? throw new InvalidOperationException("Connection string 'ITCPBackendContext' not found.")
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -50,5 +56,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
