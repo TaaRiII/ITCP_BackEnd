@@ -18,7 +18,7 @@ namespace ITCPBackend.Helper
             var claims = new[] {
         new Claim(JwtRegisteredClaimNames.Sub, userInfo.Username),
         new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
-        new Claim("role", userInfo.role)
+        new Claim("role", userInfo.role.ToString())
     };
 
 
@@ -38,7 +38,7 @@ namespace ITCPBackend.Helper
             var claims = new[] {
         new Claim(JwtRegisteredClaimNames.Sub, userInfo.Username),
         new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
-        new Claim("role", userInfo.Role)
+        new Claim("role", userInfo.Role.ToString())
     };
 
 

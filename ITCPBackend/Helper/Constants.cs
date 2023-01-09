@@ -12,12 +12,29 @@
             public static string AddMessage = "Successfully Added.";
             public static string UpdateMessage = "Successfully Updated";
         }
-        public class role
+        public class UserRoleString
         {
-            public static string Admin = "Admin";
-            public static string Client = "Client";
-            public static string SuperMDA = "SuperMDA";
-            public static string EntryUser = "EntryUser";
+            public static string System = "System";
+            public static string Secretariat = "Secretariat";
+            public static string Committee = "Committee";
+            public static string Management = "Management";
+        }
+        public class UserRoleInt
+        {
+            public static int System = 1;
+            public static int Secretariat = 2;
+            public static int Committee = 3;
+            public static int Management = 4;
+        }
+        public class ClientRoleString
+        {
+            public static string Entry = "Entry";
+            public static string MasterMDA = "MasterMDA";
+        }
+        public class ClientRoleInt
+        {
+            public static int MasterMDA = 2;
+            public static int Entry = 1;
         }
     }
 

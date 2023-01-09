@@ -35,6 +35,23 @@ namespace ITCPBackend.Controllers
             }
             else
             {
+                var RRole = "";
+                if(loginUser.role == Constants.UserRoleInt.Management)
+                {
+                    RRole = Constants.UserRoleString.Management;
+                }
+                else if(loginUser.role == Constants.UserRoleInt.Secretariat)
+                {
+                    RRole = Constants.UserRoleString.Secretariat;
+                }
+                else if (loginUser.role == Constants.UserRoleInt.Committee)
+                {
+                    RRole = Constants.UserRoleString.Committee;
+                }
+                else
+                {
+                    RRole = Constants.UserRoleString.System;
+                }
                 var message = "You are login Successfully";
                 string _token= JWTToken.Generate(loginUser);
                 var userObj = new
@@ -42,7 +59,7 @@ namespace ITCPBackend.Controllers
                     username = loginUser.Username,
                     name = loginUser.Name,
                     email = loginUser.Email,
-                    role = 1,
+                    role = RRole,
                 };
 
                 var responce = new ResponceModel()
@@ -58,6 +75,12 @@ namespace ITCPBackend.Controllers
         public async Task<IActionResult> GetUser(int id = 0)
         {
             var UsersList = await _dbcontext.Users.Where(m => id != 0 ? m.Id == id : true).ToListAsync();
+            return Ok(UsersList);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetClient(int id = 0)
+        {
+            var UsersList = await _dbcontext.clients.Where(m => id != 0 ? m.Id == id : true).ToListAsync();
             return Ok(UsersList);
         }
         [HttpPost]
@@ -105,22 +128,6 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public IActionResult SignUpClient(SignupModel objModel)
         {
-            string EncruptedString = objModel.Email + "&&$" + DateTime.Now + "&&$" + objModel.Password + "&&$" + objModel.Role;
-            var Encrupted = Crypto.Encrypt(EncruptedString);
-            string APIsString = "https://localhost:7231/api/users/verifyclient?emailToken=" + Encrupted;
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Hello!");
-            sb.AppendLine("Thanks for make account on ITCP!");
-            sb.AppendLine("If you want verify your account then click on blew link.");
-            sb.AppendLine(APIsString);
-            sb.AppendLine("Regards");
-            sb.AppendLine("ITCP Admin");
-            EmailSetting setting = new EmailSetting()
-            {
-                ToEmail = objModel.Email,
-                EmailString = sb.ToString(),
-                EmailBody = "Verification Email For ITCP",
-            };
             Client client = new Client()
             {
                 CreatedBy = "System",
@@ -130,14 +137,64 @@ namespace ITCPBackend.Controllers
                 Name = objModel.Name,
                 PhoneNumber = objModel.PhoneNumber,
                 Username = objModel.Username,
-                status = Constants.Status.InActive,
+                status = Constants.Status.Active,
                 Role = objModel.Role,
             };
             _dbcontext.clients.Add(client);
             _dbcontext.SaveChanges();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Hello!");
+            sb.AppendLine("Dear your account on ITCP are created successfully below your credential!");
+            sb.AppendLine("Username:- " + objModel.Username);
+            sb.AppendLine("Password:- " + objModel.Password);
+            sb.AppendLine("Regards");
+            sb.AppendLine("ITCP Admin");
+            EmailSetting setting = new EmailSetting()
+            {
+                ToEmail = objModel.Email,
+                EmailString = sb.ToString(),
+                EmailBody = "Account Create For ITCP",
+            };
             SendEmail(setting);
-            return Ok(APIsString);
+            var msg = "User Added Successfully";
+            return Ok(msg);
         }
+        //[HttpPost]
+        //public IActionResult SignUpClient(SignupModel objModel)
+        //{
+        //    string EncruptedString = objModel.Email + "&&$" + DateTime.Now + "&&$" + objModel.Password + "&&$" + objModel.Role;
+        //    var Encrupted = Crypto.Encrypt(EncruptedString);
+        //    string APIsString = "https://localhost:7231/api/users/verifyclient?emailToken=" + Encrupted;
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendLine("Hello!");
+        //    sb.AppendLine("Thanks for make account on ITCP!");
+        //    sb.AppendLine("If you want verify your account then click on blew link.");
+        //    sb.AppendLine(APIsString);
+        //    sb.AppendLine("Regards");
+        //    sb.AppendLine("ITCP Admin");
+        //    EmailSetting setting = new EmailSetting()
+        //    {
+        //        ToEmail = objModel.Email,
+        //        EmailString = sb.ToString(),
+        //        EmailBody = "Verification Email For ITCP",
+        //    };
+        //    Client client = new Client()
+        //    {
+        //        CreatedBy = "System",
+        //        CreatedDate = DateTime.Now,
+        //        Email = objModel.Email,
+        //        Password = objModel.Password,
+        //        Name = objModel.Name,
+        //        PhoneNumber = objModel.PhoneNumber,
+        //        Username = objModel.Username,
+        //        status = Constants.Status.Active,
+        //        Role = objModel.Role,
+        //    };
+        //    _dbcontext.clients.Add(client);
+        //    _dbcontext.SaveChanges();
+        //    SendEmail(setting);
+        //    return Ok(APIsString);
+        //}
         [HttpPost]
         public IActionResult VerifyClient(string emailToken)
         {
@@ -188,6 +245,15 @@ namespace ITCPBackend.Controllers
             }
             else
             {
+                var RRole = "";
+                if (loginClients.Role == Constants.ClientRoleInt.Entry)
+                {
+                    RRole = Constants.ClientRoleString.Entry;
+                }
+                else
+                {
+                    RRole = Constants.ClientRoleString.MasterMDA;
+                }
                 var message = "You are login Successfully";
                 string _token = JWTToken.ClientGenerate(loginClients);
                 var ClientObj = new
@@ -195,7 +261,7 @@ namespace ITCPBackend.Controllers
                     username = loginClients.Username,
                     name = loginClients.Name,
                     email = loginClients.Email,
-                    role = loginClients.Role,
+                    role = RRole,
                 };
 
                 var responce = new ResponceModel()

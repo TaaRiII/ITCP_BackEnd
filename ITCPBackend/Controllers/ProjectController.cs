@@ -17,7 +17,7 @@ namespace ITCPBackend.Controllers
         }
         #region
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProject(ProjectModel project)
+        public async Task<IActionResult> AddUpdateProject(ProjectModel project, string User)
         {
             var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
             if (project.Id != 0)
@@ -27,7 +27,7 @@ namespace ITCPBackend.Controllers
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     MDASector = project.MDASector,
-                    ModifiedBy = "System",
+                    ModifiedBy = User,
                     ModifiedDate = DateTime.Now,
                 };
                 ProjectDetail prodetail = new ProjectDetail()
@@ -50,7 +50,7 @@ namespace ITCPBackend.Controllers
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     MDASector = project.MDASector,
-                    CreatedBy = "System",
+                    CreatedBy = User,
                     CreatedDate = DateTime.Now,
                 };
                 _dbcontext.projects.Add(pro);
@@ -95,39 +95,39 @@ namespace ITCPBackend.Controllers
         //        return Ok();
         //    }
         //}
-        [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectDetail(ProjectDetailModel project)
-        {
-            var obj = _dbcontext.project_details.Where(m => m.Id == project.Id).FirstOrDefault();
-            if (project.Id != 0)
-            {
-                ProjectDetail pro = new ProjectDetail()
-                {
-                    ProjectName = project.ProjectName,
-                    ProjectClassification = project.ProjectClassification,
-                    ProjectDescription = project.ProjectDescription,
-                    ProjectObjectives = project.ProjectObjectives,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_details.Update(pro);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                ProjectDetail pro = new ProjectDetail()
-                {
-                    ProjectName = project.ProjectName,
-                    ProjectClassification = project.ProjectClassification,
-                    ProjectDescription = project.ProjectDescription,
-                    ProjectObjectives = project.ProjectObjectives,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_details.Add(pro);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddUpdateProjectDetail(ProjectDetailModel project)
+        //{
+        //    var obj = _dbcontext.project_details.Where(m => m.Id == project.Id).FirstOrDefault();
+        //    if (project.Id != 0)
+        //    {
+        //        ProjectDetail pro = new ProjectDetail()
+        //        {
+        //            ProjectName = project.ProjectName,
+        //            ProjectClassification = project.ProjectClassification,
+        //            ProjectDescription = project.ProjectDescription,
+        //            ProjectObjectives = project.ProjectObjectives,
+        //            ProjectId = project.ProjectId,
+        //        };
+        //        _dbcontext.project_details.Update(pro);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        ProjectDetail pro = new ProjectDetail()
+        //        {
+        //            ProjectName = project.ProjectName,
+        //            ProjectClassification = project.ProjectClassification,
+        //            ProjectDescription = project.ProjectDescription,
+        //            ProjectObjectives = project.ProjectObjectives,
+        //            ProjectId = project.ProjectId,
+        //        };
+        //        _dbcontext.project_details.Add(pro);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //}
         [HttpPost]
         public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel project)
         {
