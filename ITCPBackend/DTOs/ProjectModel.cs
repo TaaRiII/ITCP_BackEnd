@@ -10,5 +10,6 @@
         public string? ProjectObjectives { get; set; }
         public string? ProjectDescription { get; set; }
         public string? ProjectClassification { get; set; }
+        public string? accesstoken { get; set; }
     }
 }

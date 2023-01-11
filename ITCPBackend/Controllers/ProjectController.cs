@@ -3,6 +3,8 @@ using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ITCPBackend.Controllers
 {
@@ -17,29 +19,34 @@ namespace ITCPBackend.Controllers
         }
         #region
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProject(ProjectModel project, string User)
+        public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
+            var token = new JwtSecurityToken(project.accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            Client getClient = _dbcontext.clients.Find(claimsId);
             var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
             if (project.Id != 0)
             {
+
                 Project pro = new Project()
                 {
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     MDASector = project.MDASector,
-                    ModifiedBy = User,
+                    ModifiedBy = getClient.Username,
                     ModifiedDate = DateTime.Now,
                 };
+                _dbcontext.projects.Add(pro);
+                await _dbcontext.SaveChangesAsync();
                 ProjectDetail prodetail = new ProjectDetail()
                 {
                     ProjectName = project.ProjectName,
                     ProjectClassification = project.ProjectClassification,
                     ProjectDescription = project.ProjectDescription,
                     ProjectObjectives = project.ProjectObjectives,
-                    ProjectId = project.Id,
+                    ProjectId = pro.Id,
                 };
                 _dbcontext.project_details.Update(prodetail);
-                _dbcontext.projects.Update(pro);
                 await _dbcontext.SaveChangesAsync();
                 return Ok();
             }
@@ -50,8 +57,9 @@ namespace ITCPBackend.Controllers
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     MDASector = project.MDASector,
-                    CreatedBy = User,
+                    CreatedBy = getClient.Username,
                     CreatedDate = DateTime.Now,
+                    ClientId = getClient.Id,
                 };
                 _dbcontext.projects.Add(pro);
                 await _dbcontext.SaveChangesAsync();
