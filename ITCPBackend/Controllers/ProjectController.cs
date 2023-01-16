@@ -3,8 +3,11 @@ using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using NuGet.Protocol;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 
 namespace ITCPBackend.Controllers
 {
@@ -32,7 +35,7 @@ namespace ITCPBackend.Controllers
                 {
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
-                    MDASector = project.MDASector,
+                    //MDASector = project.MDASector,
                     ModifiedBy = getClient.Username,
                     ModifiedDate = DateTime.Now,
                 };
@@ -56,7 +59,7 @@ namespace ITCPBackend.Controllers
                 {
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
-                    MDASector = project.MDASector,
+                    //MDASector = project.MDASector,
                     CreatedBy = getClient.Username,
                     CreatedDate = DateTime.Now,
                     ClientId = getClient.Id,
@@ -168,31 +171,47 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectScope(ProjectScopeModel project)
+        public async Task<IActionResult> AddUpdateProjectScope(ProjectModel project)
         {
-            var obj = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
-            if (project.Id != 0)
+            try
             {
-                ProjectScope pro = new ProjectScope()
+                var obj = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
+                //var Array = JsonConvert.DeserializeObject(project.Deliverable);
+                //var array = project.Deliverable.GetType().ob
+                //var array = project.Deliverable;
+                //var add = JsonConvert.SerializeObject<ValueKind>(project.Deliverable);
+                //ValueKind objArray = (ValueKind) JsonSerializer.Deserialize<ValueKind>(project.Deliverable);
+                var split = project.Deliverable.split("object:");
+                ValueKind objArray2 = JsonConvert.DeserializeObject<ValueKind>(project.Deliverable);
+                if (project.Id != 0)
                 {
-                    Deliverable = project.Deliverable,
-                    Milestone = project.Milestone,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_scopes.Update(pro);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                    //string jjj = JsonConvert.Parse(project.Deliverable);
+                    ProjectScope pro = new ProjectScope()
+                    {
+
+                        //Deliverable = project.Deliverable,
+                        //Milestone = project.Milestone,
+                        //ProjectId = project.ProjectId,
+                    };
+                    _dbcontext.project_scopes.Update(pro);
+                    await _dbcontext.SaveChangesAsync();
+                    return Ok();
+                }
+                else
+                {
+                    ProjectScope pro = new ProjectScope()
+                    {
+                        //Deliverable = project.Deliverable,
+                        //Milestone = project.Milestone,
+                        //ProjectId = project.ProjectId,
+                    };
+                    _dbcontext.project_scopes.Add(pro);
+                    await _dbcontext.SaveChangesAsync();
+                    return Ok();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ProjectScope pro = new ProjectScope()
-                {
-                    Deliverable = project.Deliverable,
-                    Milestone = project.Milestone,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_scopes.Add(pro);
-                await _dbcontext.SaveChangesAsync();
                 return Ok();
             }
         }
