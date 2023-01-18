@@ -4,6 +4,7 @@ using ITCPBackend.Helper;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,7 +21,16 @@ namespace ITCPBackend.Controllers
         {
             _dbcontext = dbcontext;
         }
-        #region
+        #region Project
+        //[HttpGet]
+        //public async Task<ActionResult> GetProjectList(string accesstoken = "")
+        //{
+        //    var token = new JwtSecurityToken(accesstoken);
+        //    var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+
+        //}
+        #endregion
+        #region Application Form
         [HttpPost]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
@@ -181,17 +191,21 @@ namespace ITCPBackend.Controllers
                 //var array = project.Deliverable;
                 //var add = JsonConvert.SerializeObject<ValueKind>(project.Deliverable);
                 //ValueKind objArray = (ValueKind) JsonSerializer.Deserialize<ValueKind>(project.Deliverable);
-                var split = project.Deliverable.split("object:");
-                ValueKind objArray2 = JsonConvert.DeserializeObject<ValueKind>(project.Deliverable);
-                if (project.Id != 0)
+                //var split = project.Deliverable.ToJson();
+
+                var Deliverable = project.Deliverable;
+                var CommaSaperetedDeliverable = string.Join(",", Deliverable);
+                var Milestone = project.Milestone;
+                var CommaSaperetedMilestone = string.Join(",", Milestone);
+                //object objArray2 = JsonConvert.DeserializeObject<object>(project.Deliverable);
+                if (obj != null)
                 {
                     //string jjj = JsonConvert.Parse(project.Deliverable);
                     ProjectScope pro = new ProjectScope()
                     {
-
-                        //Deliverable = project.Deliverable,
-                        //Milestone = project.Milestone,
-                        //ProjectId = project.ProjectId,
+                        Deliverable = CommaSaperetedDeliverable,
+                        Milestone = CommaSaperetedMilestone,
+                        ProjectId = project.ProjectId ?? 0,
                     };
                     _dbcontext.project_scopes.Update(pro);
                     await _dbcontext.SaveChangesAsync();
@@ -201,9 +215,9 @@ namespace ITCPBackend.Controllers
                 {
                     ProjectScope pro = new ProjectScope()
                     {
-                        //Deliverable = project.Deliverable,
-                        //Milestone = project.Milestone,
-                        //ProjectId = project.ProjectId,
+                        Deliverable = CommaSaperetedDeliverable,
+                        Milestone = CommaSaperetedMilestone,
+                        ProjectId = project.ProjectId ?? 0,
                     };
                     _dbcontext.project_scopes.Add(pro);
                     await _dbcontext.SaveChangesAsync();

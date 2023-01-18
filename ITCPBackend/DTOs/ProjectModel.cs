@@ -10,8 +10,8 @@
         public string? ProjectObjectives { get; set; }
         public string? ProjectDescription { get; set; }
         public string? ProjectClassification { get; set; }
-        public dynamic? Deliverable { get; set; }
-        public dynamic? Milestone { get; set; }
+        public ValueKind? Deliverable { get; set; }
+        public ValueKind? Milestone { get; set; }
         public string? accesstoken { get; set; }
         public int? ProjectId { get; set; }
     }
