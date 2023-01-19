@@ -7,7 +7,7 @@
             public static int Active = 1;
             public static int InActive = 0;
         }
-        public class message
+        public class Message
         {
             public static string AddMessage = "Successfully Added.";
             public static string UpdateMessage = "Successfully Updated";

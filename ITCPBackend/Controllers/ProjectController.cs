@@ -1,4 +1,5 @@
-﻿using ITCPBackend.Data;
+﻿using AutoMapper;
+using ITCPBackend.Data;
 using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NuGet.Common;
 using NuGet.Protocol;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json.Nodes;
@@ -17,10 +19,14 @@ namespace ITCPBackend.Controllers
     public class ProjectController : Controller
     {
         private readonly ITCPBackendContext _dbcontext;
-        public ProjectController(ITCPBackendContext dbcontext)
+
+        private readonly IMapper _mapper;
+        public ProjectController(ITCPBackendContext dbcontext, IMapper mapper)
         {
             _dbcontext = dbcontext;
+            _mapper=mapper;
         }
+
         #region Project
         //[HttpGet]
         //public async Task<ActionResult> GetProjectList(string accesstoken = "")
@@ -30,8 +36,9 @@ namespace ITCPBackend.Controllers
 
         //}
         #endregion
+
         #region Application Form
-        [HttpPost]
+        [HttpPost("AddUpdateProject")]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
             var token = new JwtSecurityToken(project.accesstoken);
@@ -89,98 +96,24 @@ namespace ITCPBackend.Controllers
                 return Ok(pro.Id);
             }
         }
-        //[HttpPost]
-        //public async Task<IActionResult> AddUpdateProjectCost(ProjectCostModel project)
-        //{
-        //    var obj = _dbcontext.project_costs.Where(m => m.Id == project.Id).FirstOrDefault();
-        //    if (project.Id != 0)
-        //    {
-        //        ProjectCost pro = new ProjectCost()
-        //        {
-        //            Description = project.Description,
-        //            Amount = project.Amount,
-        //        };
-        //        _dbcontext.project_costs.Update(pro);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        ProjectCost pro = new ProjectCost()
-        //        {
-        //            Description = project.Description,
-        //            Amount = project.Amount,
-        //        };
-        //        _dbcontext.project_costs.Add(pro);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //}
-        //[HttpPost]
-        //public async Task<IActionResult> AddUpdateProjectDetail(ProjectDetailModel project)
-        //{
-        //    var obj = _dbcontext.project_details.Where(m => m.Id == project.Id).FirstOrDefault();
-        //    if (project.Id != 0)
-        //    {
-        //        ProjectDetail pro = new ProjectDetail()
-        //        {
-        //            ProjectName = project.ProjectName,
-        //            ProjectClassification = project.ProjectClassification,
-        //            ProjectDescription = project.ProjectDescription,
-        //            ProjectObjectives = project.ProjectObjectives,
-        //            ProjectId = project.ProjectId,
-        //        };
-        //        _dbcontext.project_details.Update(pro);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        ProjectDetail pro = new ProjectDetail()
-        //        {
-        //            ProjectName = project.ProjectName,
-        //            ProjectClassification = project.ProjectClassification,
-        //            ProjectDescription = project.ProjectDescription,
-        //            ProjectObjectives = project.ProjectObjectives,
-        //            ProjectId = project.ProjectId,
-        //        };
-        //        _dbcontext.project_details.Add(pro);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //}
-        [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel project)
+        [HttpPost("AddUpdateProjectDuration")]
+        public async Task<IActionResult> AddUpdateProjectDuration(IList<ProjectDurationModel> projects)
         {
-            var obj = _dbcontext.project_durations.Where(m => m.Id == project.Id).FirstOrDefault();
-            if (project.Id != 0)
+
+            try
             {
-                ProjectDuration pro = new ProjectDuration()
-                {
-                    DurationType = project.DurationType,
-                    StartDate = project.StartDate,
-                    EndDate = project.StartDate,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_durations.Update(pro);
+                var data = _mapper.Map<IList<ProjectDuration>>(projects);
+                _dbcontext.project_durations.UpdateRange(data);
                 await _dbcontext.SaveChangesAsync();
-                return Ok();
+                return Ok(Constants.Message.AddMessage);
+
             }
-            else
+            catch (Exception ex)
             {
-                ProjectDuration pro = new ProjectDuration()
-                {
-                    DurationType = project.DurationType,
-                    StartDate = project.StartDate,
-                    EndDate = project.StartDate,
-                    ProjectId = project.ProjectId,
-                };
-                _dbcontext.project_durations.Add(pro);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                return BadRequest(ex.Message);
             }
         }
-        [HttpPost]
+        [HttpPost("AddUpdateProjectScope")]
         public async Task<IActionResult> AddUpdateProjectScope(ProjectModel project)
         {
             try
@@ -227,6 +160,21 @@ namespace ITCPBackend.Controllers
             catch (Exception ex)
             {
                 return Ok();
+            }
+        }
+        [HttpPost("AddUpdateProjectCost")]
+        public async Task<IActionResult> AddUpdateProjectCost(ProjectCostDto project)
+        {
+            try
+            {
+                var data = _mapper.Map<ProjectCost>(project);
+                _dbcontext.project_costs.UpdateRange(data);
+                await _dbcontext.SaveChangesAsync();
+                return Ok(Constants.Message.AddMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
         #endregion
