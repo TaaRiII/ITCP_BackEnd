@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using ITCPBackend.Data;
+﻿using ITCPBackend.Data;
 using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
@@ -19,12 +18,9 @@ namespace ITCPBackend.Controllers
     public class ProjectController : Controller
     {
         private readonly ITCPBackendContext _dbcontext;
-
-        private readonly IMapper _mapper;
-        public ProjectController(ITCPBackendContext dbcontext, IMapper mapper)
+        public ProjectController(ITCPBackendContext dbcontext)
         {
             _dbcontext = dbcontext;
-            _mapper=mapper;
         }
 
         #region Project
@@ -102,9 +98,9 @@ namespace ITCPBackend.Controllers
 
             try
             {
-                var data = _mapper.Map<IList<ProjectDuration>>(projects);
-                _dbcontext.project_durations.UpdateRange(data);
-                await _dbcontext.SaveChangesAsync();
+                //var data = _mapper.Map<IList<ProjectDuration>>(projects);
+                //_dbcontext.project_durations.UpdateRange(data);
+                //await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
 
             }
@@ -167,9 +163,9 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                var data = _mapper.Map<ProjectCost>(project);
-                _dbcontext.project_costs.UpdateRange(data);
-                await _dbcontext.SaveChangesAsync();
+                //var data = _mapper.Map<ProjectCost>(project);
+                //_dbcontext.project_costs.UpdateRange(data);
+                //await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
             catch (Exception ex)
