@@ -34,7 +34,7 @@ namespace ITCPBackend.Controllers
         #endregion
 
         #region Application Form
-        [HttpPost("AddUpdateProject")]
+        [HttpPost]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
             var token = new JwtSecurityToken(project.accesstoken);
@@ -92,7 +92,7 @@ namespace ITCPBackend.Controllers
                 return Ok(pro.Id);
             }
         }
-        [HttpPost("AddUpdateProjectDuration")]
+        [HttpPost]
         public async Task<IActionResult> AddUpdateProjectDuration(IList<ProjectDurationModel> projects)
         {
 
@@ -109,26 +109,29 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost("AddUpdateProjectScope")]
-        public async Task<IActionResult> AddUpdateProjectScope(ProjectModel project)
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateProjectScope(ProjectScopeModel project)
         {
             try
             {
-                var obj = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
-                //var Array = JsonConvert.DeserializeObject(project.Deliverable);
-                //var array = project.Deliverable.GetType().ob
-                //var array = project.Deliverable;
-                //var add = JsonConvert.SerializeObject<ValueKind>(project.Deliverable);
-                //ValueKind objArray = (ValueKind) JsonSerializer.Deserialize<ValueKind>(project.Deliverable);
-                //var split = project.Deliverable.ToJson();
-
+                //var obj = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
+                var token = new JwtSecurityToken(project.accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                Client getClient = _dbcontext.clients.Find(claimsId);
                 var Deliverable = project.Deliverable;
                 var CommaSaperetedDeliverable = string.Join(",", Deliverable);
                 var Milestone = project.Milestone;
                 var CommaSaperetedMilestone = string.Join(",", Milestone);
-                //object objArray2 = JsonConvert.DeserializeObject<object>(project.Deliverable);
-                if (obj != null)
+                var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
+                if (project.Id != 0)
                 {
+                    //var Array = JsonConvert.DeserializeObject(project.Deliverable);
+                    //var array = project.Deliverable.GetType().ob
+                    //var array = project.Deliverable;
+                    //var add = JsonConvert.SerializeObject<ValueKind>(project.Deliverable);
+                    //ValueKind objArray = (ValueKind) JsonSerializer.Deserialize<ValueKind>(project.Deliverable);
+                    //var split = project.Deliverable.ToJson();
+                //object objArray2 = JsonConvert.DeserializeObject<object>(project.Deliverable);
                     //string jjj = JsonConvert.Parse(project.Deliverable);
                     ProjectScope pro = new ProjectScope()
                     {
@@ -158,7 +161,7 @@ namespace ITCPBackend.Controllers
                 return Ok();
             }
         }
-        [HttpPost("AddUpdateProjectCost")]
+        [HttpPost]
         public async Task<IActionResult> AddUpdateProjectCost(ProjectCostDto project)
         {
             try
