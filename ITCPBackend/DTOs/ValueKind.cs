@@ -9,6 +9,7 @@
     }
     public class Quantity
     {
-        public string qty { get; set; }
+        public string? qty { get; set; }
+        public string? mil { get; set; }
     }
 }

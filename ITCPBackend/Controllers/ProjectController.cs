@@ -98,6 +98,9 @@ namespace ITCPBackend.Controllers
 
             try
             {
+                //var token = new JwtSecurityToken(projects.accesstoken);
+                //var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                //Client getClient = _dbcontext.clients.Find(claimsId);
                 //var data = _mapper.Map<IList<ProjectDuration>>(projects);
                 //_dbcontext.project_durations.UpdateRange(data);
                 //await _dbcontext.SaveChangesAsync();
@@ -166,6 +169,9 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+                var token = new JwtSecurityToken(project.accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                Client getClient = _dbcontext.clients.Find(claimsId);
                 //var data = _mapper.Map<ProjectCost>(project);
                 //_dbcontext.project_costs.UpdateRange(data);
                 //await _dbcontext.SaveChangesAsync();
