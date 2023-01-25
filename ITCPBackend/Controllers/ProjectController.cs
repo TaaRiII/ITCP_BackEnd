@@ -93,7 +93,7 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectDuration(IList<ProjectDurationModel> projects)
+        public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel projects)
         {
 
             try
