@@ -1,4 +1,5 @@
-﻿using ITCPBackend.Data;
+﻿using AutoMapper;
+using ITCPBackend.Data;
 using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
@@ -17,10 +18,12 @@ namespace ITCPBackend.Controllers
     [ApiController]
     public class ProjectController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly ITCPBackendContext _dbcontext;
-        public ProjectController(ITCPBackendContext dbcontext)
+        public ProjectController(ITCPBackendContext dbcontext, IMapper mapper)
         {
             _dbcontext = dbcontext;
+            _mapper= mapper;
         }
 
         #region Project
@@ -165,16 +168,27 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectCost(ProjectCostDto project)
+        public async Task<IActionResult> AddUpdateProjectCost(CostDto project)
         {
             try
             {
-                var token = new JwtSecurityToken(project.accesstoken);
-                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                Client getClient = _dbcontext.clients.Find(claimsId);
+                //var token = new JwtSecurityToken(project.accesstoken);
+                //var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                //Client getClient = _dbcontext.clients.Find(claimsId);
                 //var data = _mapper.Map<ProjectCost>(project);
-                //_dbcontext.project_costs.UpdateRange(data);
-                //await _dbcontext.SaveChangesAsync();
+
+                IList<ExtracostDto> extracosts= new List<ExtracostDto>();
+                ProjectCost cost = new ProjectCost();
+                extracosts.Add(new ExtracostDto { description = project.costDetails.costdescription, amount = project.costDetails.costamount });
+
+                foreach (var item in project.costDetails.extracosts)
+                {
+                    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                }
+                cost.ProjectId = project.ProjectId;
+                cost.CostDetails = JsonConvert.SerializeObject(extracosts);
+                _dbcontext.project_costs.Update(cost);
+                await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
             catch (Exception ex)
