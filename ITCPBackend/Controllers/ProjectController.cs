@@ -96,7 +96,7 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel projects)
+        public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel project)
         {
 
             try
@@ -107,7 +107,53 @@ namespace ITCPBackend.Controllers
                 //var data = _mapper.Map<IList<ProjectDuration>>(projects);
                 //_dbcontext.project_durations.UpdateRange(data);
                 //await _dbcontext.SaveChangesAsync();
-                return Ok(Constants.Message.AddMessage);
+                //var token = new JwtSecurityToken(project.accesstoken);
+                //var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                //Client getClient = _dbcontext.clients.Find(claimsId);
+                //var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
+                //if (project.Id != 0)
+                //{
+
+                //    Project pro = new Project()
+                //    {
+                //        MDA = project.MDA,
+                //        BudgetCode = project.BudgetCode,
+                //        //MDASector = project.MDASector,
+                //        ModifiedBy = getClient.Username,
+                //        ModifiedDate = DateTime.Now,
+                //    };
+                //    _dbcontext.projects.Add(pro);
+                //    await _dbcontext.SaveChangesAsync();
+                //    ProjectDetail prodetail = new ProjectDetail()
+                //    {
+                //        ProjectName = project.ProjectName,
+                //        ProjectClassification = project.ProjectClassification,
+                //        ProjectDescription = project.ProjectDescription,
+                //        ProjectObjectives = project.ProjectObjectives,
+                //        ProjectId = pro.Id,
+                //    };
+                //    _dbcontext.project_details.Update(prodetail);
+                //    await _dbcontext.SaveChangesAsync();
+                //    return Ok();
+                //}
+                //else
+                //{
+                    ProjectDuration pro = new ProjectDuration()
+                    {
+                        ProjectId = project.ProjectId ?? 0,
+                        DurationType = project.DurationType,
+                        //MDASector = project.MDASector,
+                        FirstStartDate = project.FirstStartDate,
+                        FirstEndDate = project.FirstEndDate,
+                        SecondEndDate = project.SecondEndDate,
+                        SecondStartDate = project.SecondStartDate,
+                        ThirdEndDate = project.ThirdEndDate,
+                        ThirdStartDate = project.ThirdStartDate,
+                    };
+                    _dbcontext.project_durations.Add(pro);
+                    await _dbcontext.SaveChangesAsync();
+                    return Ok();
+                //}
 
             }
             catch (Exception ex)
@@ -187,7 +233,7 @@ namespace ITCPBackend.Controllers
                 }
                 cost.ProjectId = project.ProjectId;
                 cost.CostDetails = JsonConvert.SerializeObject(extracosts);
-                _dbcontext.project_costs.Update(cost);
+                _dbcontext.project_costs.Add(cost);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
@@ -213,7 +259,7 @@ namespace ITCPBackend.Controllers
                     extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
                 }
                 strategyAndState.Details = JsonConvert.SerializeObject(extra);
-                _dbcontext.project_strategy_and_state.Update(strategyAndState);
+                _dbcontext.project_strategy_and_state.Add(strategyAndState);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
@@ -222,7 +268,44 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [HttpGet]
+        public IActionResult ProjectData(int id)
+        {
+            try
+            {
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Id == id)
+                                  from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                  from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                  from scope in _dbcontext.project_scopes.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                  from cost in _dbcontext.project_costs.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                  from sustain in _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                  select new CompeteProjectDto
+                                  {
+                                      Id = id,
+                                      MDA = project.MDA,
+                                      BudgetCode = project.BudgetCode,
+                                      MDASector = project.MDASector,
+                                      ProjectName = detail.ProjectName,
+                                      ProjectDescription = detail.ProjectDescription,
+                                      ProjectClassification = detail.ProjectClassification,
+                                      ProjectObjectives = detail.ProjectObjectives,
+                                      DurationType = duration.DurationType,
+                                      FirstEndDate = duration.FirstEndDate,
+                                      FirstStartDate = duration.FirstStartDate,
+                                      SecondStartDate = duration.SecondStartDate,
+                                      SecondEndDate = duration.SecondEndDate,
+                                      ThirdStartDate = duration.ThirdStartDate,
+                                      ThirdEndDate = duration.ThirdEndDate,
+                                      SustainabilityName = sustain.SustainabilityName,
+                                      Details = sustain.Details,
+                                  }).ToList();
+                return Ok(JoinProject);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         #endregion
     }

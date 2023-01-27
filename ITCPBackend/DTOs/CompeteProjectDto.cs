@@ -19,5 +19,9 @@
         public string? SecondEndDate { get; set; }
         public string? ThirdStartDate { get; set; }
         public string? ThirdEndDate { get; set; }
+        public string? SustainabilityName { get; set; }
+        public string? Details { get; set; }
+        public string? Deliverable { get; set; }
+        public string? Milestone { get; set; }
     }
 }
