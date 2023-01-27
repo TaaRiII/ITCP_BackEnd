@@ -207,6 +207,7 @@ namespace ITCPBackend.Controllers
                 ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
                 extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = project.sustainabilityDetail.CurrentState, DescribeArr = project.sustainabilityDetail.Describe, ProjectTitleArr = project.sustainabilityDetail.ProjectTitle });
                 strategyAndState.ProjectId = project.ProjectId;
+                strategyAndState.SustainabilityName = project.strategy;
 
                 foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
                 {
