@@ -196,6 +196,34 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddProjectSustainability(SustainabilityDto project)
+        {
+            try
+            {
+                IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
+                ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
+                extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = project.sustainabilityDetail.CurrentState, DescribeArr = project.sustainabilityDetail.Describe, ProjectTitleArr = project.sustainabilityDetail.ProjectTitle });
+                strategyAndState.ProjectId = project.ProjectId;
+
+                foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                {
+                    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                }
+                strategyAndState.Details = JsonConvert.SerializeObject(extra);
+                _dbcontext.project_strategy_and_state.Update(strategyAndState);
+                await _dbcontext.SaveChangesAsync();
+                return Ok(Constants.Message.AddMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         #endregion
     }
 }
