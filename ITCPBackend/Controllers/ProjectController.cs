@@ -307,6 +307,20 @@ namespace ITCPBackend.Controllers
             }
         }
 
+
+        [HttpGet]
+        public IActionResult ProjectListSubmit()
+        {
+            try
+            {
+                return Ok(_dbcontext.projects.ToList().Where(m=>m.Status==1 && m.Status == 3));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         #endregion
     }
 }
