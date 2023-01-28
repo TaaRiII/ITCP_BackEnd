@@ -313,7 +313,20 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                return Ok(_dbcontext.projects.ToList().Where(m=>m.Status==1 && m.Status == 3));
+                var JoinProject = (from project in _dbcontext.projects
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CompeteProjectDto
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives                                     
+                                   }).ToList();
+                return Ok(JoinProject);
             }
             catch (Exception ex)
             {
