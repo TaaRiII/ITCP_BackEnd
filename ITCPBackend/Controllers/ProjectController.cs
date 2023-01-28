@@ -309,7 +309,7 @@ namespace ITCPBackend.Controllers
 
 
         [HttpGet]
-        public IActionResult ProjectListSubmit()
+        public IActionResult ProjectListEntryUser()
         {
             try
             {
