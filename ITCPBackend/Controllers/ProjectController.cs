@@ -26,17 +26,7 @@ namespace ITCPBackend.Controllers
             _mapper= mapper;
         }
 
-        #region Project
-        //[HttpGet]
-        //public async Task<ActionResult> GetProjectList(string accesstoken = "")
-        //{
-        //    var token = new JwtSecurityToken(accesstoken);
-        //    var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-
-        //}
-        #endregion
-
-        #region Application Form
+        #region Application Form Submit
         [HttpPost]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
@@ -243,7 +233,6 @@ namespace ITCPBackend.Controllers
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> AddProjectSustainability(SustainabilityDto project)
         {
@@ -268,52 +257,75 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateProjectPolicy(ProjectPolicyDto project)
+        {
+            try
+            {
+                var res= _dbcontext.projects.Where(m => m.Id == project.ProjectId).FirstOrDefault();
+                res.Policies = project.Policies;
+                if (res.Status == (int)Constants.ProjectStatus.Draft)
+                {
+                    res.Status = (int)Constants.ProjectStatus.Submit;
+                }
+                _dbcontext.projects.Update(res);
+                await _dbcontext.SaveChangesAsync();
+                return Ok(Constants.Message.AddMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region Application Form Get
         [HttpGet]
         public IActionResult ProjectData(int id)
         {
             try
             {
                 var JoinProject = (from project in _dbcontext.projects.Where(m => m.Id == id)
-                                  from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                  from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                  from scope in _dbcontext.project_scopes.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                  from cost in _dbcontext.project_costs.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                  from sustain in _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                  select new CompeteProjectDto
-                                  {
-                                      Id = id,
-                                      MDA = project.MDA,
-                                      BudgetCode = project.BudgetCode,
-                                      MDASector = project.MDASector,
-                                      ProjectName = detail.ProjectName,
-                                      ProjectDescription = detail.ProjectDescription,
-                                      ProjectClassification = detail.ProjectClassification,
-                                      ProjectObjectives = detail.ProjectObjectives,
-                                      DurationType = duration.DurationType,
-                                      FirstEndDate = duration.FirstEndDate,
-                                      FirstStartDate = duration.FirstStartDate,
-                                      SecondStartDate = duration.SecondStartDate,
-                                      SecondEndDate = duration.SecondEndDate,
-                                      ThirdStartDate = duration.ThirdStartDate,
-                                      ThirdEndDate = duration.ThirdEndDate,
-                                      SustainabilityName = sustain.SustainabilityName,
-                                      Details = sustain.Details,
-                                  }).ToList();
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   from scope in _dbcontext.project_scopes.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   from cost in _dbcontext.project_costs.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   from sustain in _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CompeteProjectDto
+                                   {
+                                       Id = id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       DurationType = duration.DurationType,
+                                       FirstEndDate = duration.FirstEndDate,
+                                       FirstStartDate = duration.FirstStartDate,
+                                       SecondStartDate = duration.SecondStartDate,
+                                       SecondEndDate = duration.SecondEndDate,
+                                       ThirdStartDate = duration.ThirdStartDate,
+                                       ThirdEndDate = duration.ThirdEndDate,
+                                       SustainabilityName = sustain.SustainabilityName,
+                                       Details = sustain.Details,
+                                   }).ToList();
                 return Ok(JoinProject);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-
-
         [HttpGet]
         public IActionResult ProjectList(int status)
         {
             try
             {
-                var JoinProject = (from project in _dbcontext.projects.Where(m=>m.Status== status)
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
                                    {
@@ -324,7 +336,7 @@ namespace ITCPBackend.Controllers
                                        ProjectName = detail.ProjectName,
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
-                                       ProjectObjectives = detail.ProjectObjectives                                     
+                                       ProjectObjectives = detail.ProjectObjectives
                                    }).ToList();
                 return Ok(JoinProject);
             }
@@ -333,7 +345,24 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        #endregion
+
+        #region Application status Chnage
+        [HttpGet]
+        public IActionResult StatusUpdate(int id)
+        {
+            try
+            {
+                return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         #endregion
+
     }
 }
