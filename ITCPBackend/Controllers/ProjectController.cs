@@ -288,32 +288,40 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Id == id)
-                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   from scope in _dbcontext.project_scopes.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   from cost in _dbcontext.project_costs.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   from sustain in _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   select new CompeteProjectDto
-                                   {
-                                       Id = id,
-                                       MDA = project.MDA,
-                                       BudgetCode = project.BudgetCode,
-                                       MDASector = project.MDASector,
-                                       ProjectName = detail.ProjectName,
-                                       ProjectDescription = detail.ProjectDescription,
-                                       ProjectClassification = detail.ProjectClassification,
-                                       ProjectObjectives = detail.ProjectObjectives,
-                                       DurationType = duration.DurationType,
-                                       FirstEndDate = duration.FirstEndDate,
-                                       FirstStartDate = duration.FirstStartDate,
-                                       SecondStartDate = duration.SecondStartDate,
-                                       SecondEndDate = duration.SecondEndDate,
-                                       ThirdStartDate = duration.ThirdStartDate,
-                                       ThirdEndDate = duration.ThirdEndDate,
-                                       SustainabilityName = sustain.SustainabilityName,
-                                       Details = sustain.Details,
-                                   }).ToList();
+                CompeteProjectDto JoinProject = (from project in _dbcontext.projects.Where(m => m.Id == id)
+                                                 from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                 from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                 from scope in _dbcontext.project_scopes.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                 from cost in _dbcontext.project_costs.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                 from sustain in _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                 select new CompeteProjectDto
+                                                 {
+                                                     Id = id,
+                                                     MDA = project.MDA,
+                                                     BudgetCode = project.BudgetCode,
+                                                     MDASector = project.MDASector,
+                                                     ProjectName = detail.ProjectName,
+                                                     ProjectDescription = detail.ProjectDescription,
+                                                     ProjectClassification = detail.ProjectClassification,
+                                                     ProjectObjectives = detail.ProjectObjectives,
+                                                     DurationType = duration.DurationType,
+                                                     FirstEndDate = duration.FirstEndDate,
+                                                     FirstStartDate = duration.FirstStartDate,
+                                                     SecondStartDate = duration.SecondStartDate,
+                                                     SecondEndDate = duration.SecondEndDate,
+                                                     ThirdStartDate = duration.ThirdStartDate,
+                                                     ThirdEndDate = duration.ThirdEndDate,
+                                                     SustainabilityName = sustain.SustainabilityName,
+                                                     Details = sustain.Details,
+                                                     costId = cost.Id,
+                                                     durationId = duration.Id,
+                                                     scopeId = scope.Id,
+                                                     sutainablityId = sustain.Id,
+                                                     costDetail = cost.CostDetails,
+                                                     jobType = sustain.Details,
+                                                     Milestone = scope.Milestone,
+                                                     Deliverable = scope.Deliverable,
+                                                 }).FirstOrDefault();
                 return Ok(JoinProject);
             }
             catch (Exception ex)
@@ -326,6 +334,30 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+
+                if (status == -1)
+                {
+                    var AllJoinProject = (from project in _dbcontext.projects
+                                       from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                       select new CompeteProjectDto
+                                       {
+                                           Id = project.Id,
+                                           MDA = project.MDA,
+                                           BudgetCode = project.BudgetCode,
+                                           MDASector = project.MDASector,
+                                           ProjectName = detail.ProjectName,
+                                           ProjectDescription = detail.ProjectDescription,
+                                           ProjectClassification = detail.ProjectClassification,
+                                           ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectCreated = project.CreatedDate,
+                                           projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                          project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                          project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                       }).ToList();
+                    return Ok(AllJoinProject);
+
+                }
+
                 var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
@@ -338,7 +370,10 @@ namespace ITCPBackend.Controllers
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
-                                       ProjectCreated=project.CreatedDate
+                                       ProjectCreated=project.CreatedDate,
+                                       projectLevel= project.Status==(int)Constants.ProjectStatus.MDApprove? "Level 1":
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove? "Level 2" : 
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3": ""
                                    }).ToList();
                 return Ok(JoinProject);
             }
