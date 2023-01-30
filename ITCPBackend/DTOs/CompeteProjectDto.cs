@@ -30,5 +30,6 @@
         public int? costId { get; set; }
         public string? jobType { get; set; }
         public string? costDetail { set; get; }
+        public string projectLevel { set; get; }
     }
 }

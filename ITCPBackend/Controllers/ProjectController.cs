@@ -333,6 +333,30 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+
+                if (status == -1)
+                {
+                    var AllJoinProject = (from project in _dbcontext.projects
+                                       from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                       select new CompeteProjectDto
+                                       {
+                                           Id = project.Id,
+                                           MDA = project.MDA,
+                                           BudgetCode = project.BudgetCode,
+                                           MDASector = project.MDASector,
+                                           ProjectName = detail.ProjectName,
+                                           ProjectDescription = detail.ProjectDescription,
+                                           ProjectClassification = detail.ProjectClassification,
+                                           ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectCreated = project.CreatedDate,
+                                           projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                          project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                          project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                       }).ToList();
+                    return Ok(AllJoinProject);
+
+                }
+
                 var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
@@ -345,7 +369,10 @@ namespace ITCPBackend.Controllers
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
-                                       ProjectCreated=project.CreatedDate
+                                       ProjectCreated=project.CreatedDate,
+                                       projectLevel= project.Status==(int)Constants.ProjectStatus.MDApprove? "Level 1":
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove? "Level 2" : 
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3": ""
                                    }).ToList();
                 return Ok(JoinProject);
             }

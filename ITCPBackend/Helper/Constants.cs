@@ -43,8 +43,8 @@
              MDApprove = 2,
              MDAReject = 3,
              SectApprove = 4,
-             SectReject = 5
-
+             SectReject = 5,
+             Comeetee = 6
         }
     }
 
