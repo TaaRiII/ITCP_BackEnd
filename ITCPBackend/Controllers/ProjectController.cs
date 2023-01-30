@@ -346,6 +346,7 @@ namespace ITCPBackend.Controllers
                                            BudgetCode = project.BudgetCode,
                                            MDASector = project.MDASector,
                                            ProjectName = detail.ProjectName,
+                                           projectStatus = project.Status,
                                            ProjectDescription = detail.ProjectDescription,
                                            ProjectClassification = detail.ProjectClassification,
                                            ProjectObjectives = detail.ProjectObjectives,
@@ -401,6 +402,7 @@ namespace ITCPBackend.Controllers
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
+                                      projectStatus=project.Status,
                                        ProjectCreated = project.CreatedDate,
                                        projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                       project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
