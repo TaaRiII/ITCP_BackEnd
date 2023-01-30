@@ -349,11 +349,15 @@ namespace ITCPBackend.Controllers
 
         #region Application status Chnage
         [HttpGet]
-        public IActionResult StatusUpdate(int id)
+        public async Task<IActionResult> StatusUpdateAsync(ProjectStatusUpdateDto status)
         {
             try
             {
-                return Ok(JoinProject);
+                var res = _dbcontext.projects.Where(m => m.Id == status.ProjectId).FirstOrDefault();
+                res.Status = status.NewStatus;
+                _dbcontext.projects.Update(res);
+                await _dbcontext.SaveChangesAsync();
+                return Ok(res);
             }
             catch (Exception ex)
             {
