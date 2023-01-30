@@ -336,7 +336,8 @@ namespace ITCPBackend.Controllers
                                        ProjectName = detail.ProjectName,
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
-                                       ProjectObjectives = detail.ProjectObjectives
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectCreated=project.CreatedDate
                                    }).ToList();
                 return Ok(JoinProject);
             }

@@ -3,6 +3,7 @@
     public class CompeteProjectDto
     {
         public int? Id { get; set; }
+        public DateTime ProjectCreated { get; set; }
         public string? MDA { get; set; }
         public string? BudgetCode { get; set; }
         public int? MDASector { get; set; }
