@@ -7,6 +7,7 @@
         public string BudgetCode { get; set; }
         public int MDASector { get; set; }
         public int ClientId { get; set; }
+          // 0=Draft by Entry User 
           // 1=Submited By EntryUser
           // 2=MDA submit
           // 3=MDA Reject

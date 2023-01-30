@@ -309,11 +309,11 @@ namespace ITCPBackend.Controllers
 
 
         [HttpGet]
-        public IActionResult ProjectListEntryUser()
+        public IActionResult ProjectList(int status)
         {
             try
             {
-                var JoinProject = (from project in _dbcontext.projects
+                var JoinProject = (from project in _dbcontext.projects.Where(m=>m.Status== status)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
                                    {

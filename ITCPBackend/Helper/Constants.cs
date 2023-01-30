@@ -36,6 +36,16 @@
             public static int MasterMDA = 2;
             public static int Entry = 1;
         }
+        public enum ProjectStatus
+        {
+             Draft = 0,
+             Submit = 1,
+             MDApprove = 2,
+             MDAReject = 3,
+             SectApprove = 4,
+             SectReject = 5
+
+        }
     }
 
 }
