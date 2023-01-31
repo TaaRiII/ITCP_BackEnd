@@ -16,7 +16,8 @@
           // 6=
         public int Status { get; set; }
          // list of policies in CSV
-        public string Policies { get; set; }
+        public string? Policies { get; set; }
+        public string? RejectNotes { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }

@@ -123,7 +123,9 @@ namespace ITCPBackend.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Policies")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RejectNotes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    [Migration("20230119100331_CosttableChnage")]
-    partial class CosttableChnage
+    [Migration("20230131181340_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -98,18 +98,21 @@ namespace ITCPBackend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("BudgetCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MDA")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MDASector")
@@ -120,6 +123,13 @@ namespace ITCPBackend.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Policies")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -185,14 +195,26 @@ namespace ITCPBackend.Migrations
                     b.Property<string>("DurationType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("FirstEndDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstStartDate")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("SecondEndDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecondStartDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ThirdEndDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ThirdStartDate")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -229,16 +251,15 @@ namespace ITCPBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("CurrentState")
+                    b.Property<string>("Details")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("JobState")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
 
                     b.Property<string>("SustainabilityName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

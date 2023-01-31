@@ -4,22 +4,21 @@
 
 namespace ITCPBackend.Migrations
 {
-    public partial class ClientId_add_inProject : Migration
+    public partial class sdds : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "ClientId",
+            migrationBuilder.AddColumn<string>(
+                name: "RejectNotes",
                 table: "projects",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+                type: "nvarchar(max)",
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ClientId",
+                name: "RejectNotes",
                 table: "projects");
         }
     }

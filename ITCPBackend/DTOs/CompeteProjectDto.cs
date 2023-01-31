@@ -31,5 +31,6 @@
         public string? jobType { get; set; }
         public string? costDetail { set; get; }
         public string projectLevel { set; get; }
+        public string RejectNotes { set; get; }
     }
 }

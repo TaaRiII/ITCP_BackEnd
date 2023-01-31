@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    [Migration("20230130121728_policies added")]
-    partial class policiesadded
+    [Migration("20230131220823_sdds")]
+    partial class sdds
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -125,7 +125,9 @@ namespace ITCPBackend.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Policies")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RejectNotes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
