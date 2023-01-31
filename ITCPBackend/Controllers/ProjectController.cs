@@ -368,6 +368,7 @@ namespace ITCPBackend.Controllers
                                        BudgetCode = project.BudgetCode,
                                        MDASector = project.MDASector,
                                        ProjectName = detail.ProjectName,
+                                       projectStatus = project.Status,
                                        ProjectDescription = detail.ProjectDescription,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
