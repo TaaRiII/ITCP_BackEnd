@@ -301,6 +301,7 @@ namespace ITCPBackend.Controllers
                                                      BudgetCode = project.BudgetCode,
                                                      MDASector = project.MDASector,
                                                      ProjectName = detail.ProjectName,
+                                                     RejectNotes=project.RejectNotes,
                                                      ProjectDescription = detail.ProjectDescription,
                                                      ProjectClassification = detail.ProjectClassification,
                                                      ProjectObjectives = detail.ProjectObjectives,
@@ -321,6 +322,7 @@ namespace ITCPBackend.Controllers
                                                      jobType = sustain.Details,
                                                      Milestone = scope.Milestone,
                                                      Deliverable = scope.Deliverable,
+                                                     ProjectStatus=project.Status
                                                  }).FirstOrDefault();
                 return Ok(JoinProject);
             }
@@ -350,6 +352,7 @@ namespace ITCPBackend.Controllers
                                            ProjectDescription = detail.ProjectDescription,
                                            ProjectClassification = detail.ProjectClassification,
                                            ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectStatus = project.Status,
                                            ProjectCreated = project.CreatedDate,
                                            projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                           project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
@@ -368,8 +371,9 @@ namespace ITCPBackend.Controllers
                                        BudgetCode = project.BudgetCode,
                                        MDASector = project.MDASector,
                                        ProjectName = detail.ProjectName,
-                                       projectStatus = project.Status,
+                                       RejectNotes = project.RejectNotes,
                                        ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
                                        ProjectCreated=project.CreatedDate,
@@ -401,6 +405,7 @@ namespace ITCPBackend.Controllers
                                        MDASector = project.MDASector,
                                        ProjectName = detail.ProjectName,
                                        ProjectDescription = detail.ProjectDescription,
+                                       RejectNotes = project.RejectNotes,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
                                       projectStatus=project.Status,
@@ -420,13 +425,14 @@ namespace ITCPBackend.Controllers
         #endregion
 
         #region Application status Chnage
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> StatusUpdateAsync(ProjectStatusUpdateDto status)
         {
             try
             {
                 var res = _dbcontext.projects.Where(m => m.Id == status.ProjectId).FirstOrDefault();
                 res.Status = status.NewStatus;
+                res.RejectNotes = status.Note=="nc"? res.RejectNotes:status.Note;
                 _dbcontext.projects.Update(res);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(res);
