@@ -321,6 +321,7 @@ namespace ITCPBackend.Controllers
                                                      jobType = sustain.Details,
                                                      Milestone = scope.Milestone,
                                                      Deliverable = scope.Deliverable,
+                                                     ProjectStatus=project.Status
                                                  }).FirstOrDefault();
                 return Ok(JoinProject);
             }
@@ -349,6 +350,7 @@ namespace ITCPBackend.Controllers
                                            ProjectDescription = detail.ProjectDescription,
                                            ProjectClassification = detail.ProjectClassification,
                                            ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectStatus = project.Status,
                                            ProjectCreated = project.CreatedDate,
                                            projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                           project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
@@ -369,6 +371,7 @@ namespace ITCPBackend.Controllers
                                        ProjectName = detail.ProjectName,
                                        RejectNotes = project.RejectNotes,
                                        ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
                                        ProjectCreated=project.CreatedDate,

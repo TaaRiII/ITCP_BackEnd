@@ -32,5 +32,6 @@
         public string? costDetail { set; get; }
         public string projectLevel { set; get; }
         public string RejectNotes { set; get; }
+        public int ProjectStatus { set; get; }
     }
 }
