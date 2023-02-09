@@ -33,5 +33,6 @@
         public string projectLevel { set; get; }
         public string RejectNotes { set; get; }
         public int ProjectStatus { set; get; }
+        public string ScopeDetails { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NuGet.Common;
 using NuGet.Protocol;
@@ -30,9 +31,6 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
-            var token = new JwtSecurityToken(project.accesstoken);
-            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-            Client getClient = _dbcontext.clients.Find(claimsId);
             var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
             if (project.Id != 0)
             {
@@ -42,7 +40,6 @@ namespace ITCPBackend.Controllers
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     //MDASector = project.MDASector,
-                    ModifiedBy = getClient.Username,
                     ModifiedDate = DateTime.Now,
                 };
                 _dbcontext.projects.Add(pro);
@@ -66,9 +63,7 @@ namespace ITCPBackend.Controllers
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
                     //MDASector = project.MDASector,
-                    CreatedBy = getClient.Username,
                     CreatedDate = DateTime.Now,
-                    ClientId = getClient.Id,
                 };
                 _dbcontext.projects.Add(pro);
                 await _dbcontext.SaveChangesAsync();
@@ -88,46 +83,8 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUpdateProjectDuration(ProjectDurationModel project)
         {
-
             try
             {
-                //var token = new JwtSecurityToken(projects.accesstoken);
-                //var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                //Client getClient = _dbcontext.clients.Find(claimsId);
-                //var data = _mapper.Map<IList<ProjectDuration>>(projects);
-                //_dbcontext.project_durations.UpdateRange(data);
-                //await _dbcontext.SaveChangesAsync();
-                //var token = new JwtSecurityToken(project.accesstoken);
-                //var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                //Client getClient = _dbcontext.clients.Find(claimsId);
-                //var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
-                //if (project.Id != 0)
-                //{
-
-                //    Project pro = new Project()
-                //    {
-                //        MDA = project.MDA,
-                //        BudgetCode = project.BudgetCode,
-                //        //MDASector = project.MDASector,
-                //        ModifiedBy = getClient.Username,
-                //        ModifiedDate = DateTime.Now,
-                //    };
-                //    _dbcontext.projects.Add(pro);
-                //    await _dbcontext.SaveChangesAsync();
-                //    ProjectDetail prodetail = new ProjectDetail()
-                //    {
-                //        ProjectName = project.ProjectName,
-                //        ProjectClassification = project.ProjectClassification,
-                //        ProjectDescription = project.ProjectDescription,
-                //        ProjectObjectives = project.ProjectObjectives,
-                //        ProjectId = pro.Id,
-                //    };
-                //    _dbcontext.project_details.Update(prodetail);
-                //    await _dbcontext.SaveChangesAsync();
-                //    return Ok();
-                //}
-                //else
-                //{
                     ProjectDuration pro = new ProjectDuration()
                     {
                         ProjectId = project.ProjectId ?? 0,
@@ -140,11 +97,9 @@ namespace ITCPBackend.Controllers
                         ThirdEndDate = project.ThirdEndDate,
                         ThirdStartDate = project.ThirdStartDate,
                     };
-                    _dbcontext.project_durations.Add(pro);
+                    _dbcontext.project_durations.Update(pro);
                     await _dbcontext.SaveChangesAsync();
                     return Ok();
-                //}
-
             }
             catch (Exception ex)
             {
@@ -156,47 +111,17 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                //var obj = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
-                var token = new JwtSecurityToken(project.accesstoken);
-                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                Client getClient = _dbcontext.clients.Find(claimsId);
-                var Deliverable = project.Deliverable;
-                var CommaSaperetedDeliverable = string.Join(",", Deliverable);
-                var Milestone = project.Milestone;
-                var CommaSaperetedMilestone = string.Join(",", Milestone);
-                var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
-                if (project.Id != 0)
-                {
-                    //var Array = JsonConvert.DeserializeObject(project.Deliverable);
-                    //var array = project.Deliverable.GetType().ob
-                    //var array = project.Deliverable;
-                    //var add = JsonConvert.SerializeObject<ValueKind>(project.Deliverable);
-                    //ValueKind objArray = (ValueKind) JsonSerializer.Deserialize<ValueKind>(project.Deliverable);
-                    //var split = project.Deliverable.ToJson();
-                //object objArray2 = JsonConvert.DeserializeObject<object>(project.Deliverable);
-                    //string jjj = JsonConvert.Parse(project.Deliverable);
                     ProjectScope pro = new ProjectScope()
                     {
-                        Deliverable = CommaSaperetedDeliverable,
-                        Milestone = CommaSaperetedMilestone,
-                        ProjectId = project.ProjectId ?? 0,
+                        Id=project.Id,
+                        Details =JsonConvert.SerializeObject(project.ScopeDetail.detail),
+                        ProjectId = project.ProjectId
                     };
-                    _dbcontext.project_scopes.Update(pro);
+                //_dbcontext.ChangeTracker.Clear();
+                _dbcontext.project_scopes.Update(pro);
                     await _dbcontext.SaveChangesAsync();
+
                     return Ok();
-                }
-                else
-                {
-                    ProjectScope pro = new ProjectScope()
-                    {
-                        Deliverable = CommaSaperetedDeliverable,
-                        Milestone = CommaSaperetedMilestone,
-                        ProjectId = project.ProjectId ?? 0,
-                    };
-                    _dbcontext.project_scopes.Add(pro);
-                    await _dbcontext.SaveChangesAsync();
-                    return Ok();
-                }
             }
             catch (Exception ex)
             {
@@ -320,8 +245,7 @@ namespace ITCPBackend.Controllers
                                                      sutainablityId = sustain.Id,
                                                      costDetail = cost.CostDetails,
                                                      jobType = sustain.Details,
-                                                     Milestone = scope.Milestone,
-                                                     Deliverable = scope.Deliverable,
+                                                     ScopeDetails = scope.Details,
                                                      ProjectStatus=project.Status
                                                  }).FirstOrDefault();
                 return Ok(JoinProject);
@@ -348,11 +272,10 @@ namespace ITCPBackend.Controllers
                                            BudgetCode = project.BudgetCode,
                                            MDASector = project.MDASector,
                                            ProjectName = detail.ProjectName,
-                                           projectStatus = project.Status,
+                                           ProjectStatus = project.Status,
                                            ProjectDescription = detail.ProjectDescription,
                                            ProjectClassification = detail.ProjectClassification,
                                            ProjectObjectives = detail.ProjectObjectives,
-                                           ProjectStatus = project.Status,
                                            ProjectCreated = project.CreatedDate,
                                            projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                           project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
@@ -408,7 +331,7 @@ namespace ITCPBackend.Controllers
                                        RejectNotes = project.RejectNotes,
                                        ProjectClassification = detail.ProjectClassification,
                                        ProjectObjectives = detail.ProjectObjectives,
-                                      projectStatus=project.Status,
+                                       ProjectStatus =project.Status,
                                        ProjectCreated = project.CreatedDate,
                                        projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                       project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :

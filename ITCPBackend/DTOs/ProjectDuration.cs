@@ -11,6 +11,5 @@
         public string? SecondEndDate { get; set; }
         public string? ThirdStartDate { get; set; }
         public string? ThirdEndDate { get; set; }
-        public string? accesstoken { get; set; }
     }
 }

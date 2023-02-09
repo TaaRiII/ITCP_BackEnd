@@ -12,7 +12,6 @@
         public string? ProjectClassification { get; set; }
         //public ValueKind? Deliverable { get; set; }
         //public ValueKind? Milestone { get; set; }
-        public string? accesstoken { get; set; }
         public int? ProjectId { get; set; }
     }
 }
