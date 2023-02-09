@@ -39,7 +39,7 @@ namespace ITCPBackend.Controllers
                 {
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
-                    //MDASector = project.MDASector,
+                    MDASector = (int)project.MDASector,
                     ModifiedDate = DateTime.Now,
                 };
                 _dbcontext.projects.Add(pro);
@@ -62,8 +62,9 @@ namespace ITCPBackend.Controllers
                 {
                     MDA = project.MDA,
                     BudgetCode = project.BudgetCode,
-                    //MDASector = project.MDASector,
+                    MDASector = (int)project.MDASector,
                     CreatedDate = DateTime.Now,
+                    CreatedBy = "System",
                 };
                 _dbcontext.projects.Add(pro);
                 await _dbcontext.SaveChangesAsync();
