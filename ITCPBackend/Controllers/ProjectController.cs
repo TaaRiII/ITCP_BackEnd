@@ -86,11 +86,13 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+                var DurationProject = _dbcontext.project_durations.Where(m => m.Id == project.Id).FirstOrDefault();
+                if (DurationProject == null)
+                {
                     ProjectDuration pro = new ProjectDuration()
                     {
                         ProjectId = project.ProjectId ?? 0,
                         DurationType = project.DurationType,
-                        //MDASector = project.MDASector,
                         FirstStartDate = project.FirstStartDate,
                         FirstEndDate = project.FirstEndDate,
                         SecondEndDate = project.SecondEndDate,
@@ -98,9 +100,23 @@ namespace ITCPBackend.Controllers
                         ThirdEndDate = project.ThirdEndDate,
                         ThirdStartDate = project.ThirdStartDate,
                     };
-                    _dbcontext.project_durations.Update(pro);
+                    _dbcontext.project_durations.Add(pro);
                     await _dbcontext.SaveChangesAsync();
-                    return Ok();
+                }
+                else
+                {
+                    DurationProject.ProjectId = project.ProjectId ?? 0;
+                    DurationProject.DurationType = project.DurationType;
+                    DurationProject.FirstStartDate = project.FirstStartDate;
+                    DurationProject.FirstEndDate = project.FirstEndDate;
+                    DurationProject.SecondEndDate = project.SecondEndDate;
+                    DurationProject.SecondStartDate = project.SecondStartDate;
+                    DurationProject.ThirdEndDate = project.ThirdEndDate;
+                    DurationProject.ThirdStartDate = project.ThirdStartDate;
+                    _dbcontext.project_durations.Update(DurationProject);
+                    await _dbcontext.SaveChangesAsync();
+                }
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -112,17 +128,26 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+                var ScopeProject = _dbcontext.project_scopes.Where(m => m.Id == project.Id).FirstOrDefault();
+                if (ScopeProject == null)
+                {
                     ProjectScope pro = new ProjectScope()
                     {
                         Id=project.Id,
                         Details =JsonConvert.SerializeObject(project.ScopeDetail.detail),
                         ProjectId = project.ProjectId
                     };
-                //_dbcontext.ChangeTracker.Clear();
-                _dbcontext.project_scopes.Update(pro);
-                    await _dbcontext.SaveChangesAsync();
-
-                    return Ok();
+                _dbcontext.project_scopes.Add(pro);
+                }
+                else
+                {
+                    ScopeProject.Id = project.Id;
+                    ScopeProject.Details = JsonConvert.SerializeObject(project.ScopeDetail.detail);
+                    ScopeProject.ProjectId = project.ProjectId;
+                    _dbcontext.project_scopes.Update(ScopeProject);
+                }
+                await _dbcontext.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -139,18 +164,32 @@ namespace ITCPBackend.Controllers
                 //Client getClient = _dbcontext.clients.Find(claimsId);
                 //var data = _mapper.Map<ProjectCost>(project);
 
-                IList<ExtracostDto> extracosts= new List<ExtracostDto>();
+                IList<ExtracostDto> extracosts = new List<ExtracostDto>();
                 ProjectCost cost = new ProjectCost();
                 extracosts.Add(new ExtracostDto { description = project.costDetails.costdescription, amount = project.costDetails.costamount });
-
-                foreach (var item in project.costDetails.extracosts)
+                var CostModel = _dbcontext.project_costs.Where(m => m.Id == project.Id).FirstOrDefault();
+                if (CostModel == null)
                 {
-                    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                    foreach (var item in project.costDetails.extracosts)
+                    {
+                        extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                    }
+                    cost.ProjectId = project.ProjectId;
+                    cost.CostDetails = JsonConvert.SerializeObject(extracosts);
+                    _dbcontext.project_costs.Add(cost);
+                    await _dbcontext.SaveChangesAsync();
                 }
-                cost.ProjectId = project.ProjectId;
-                cost.CostDetails = JsonConvert.SerializeObject(extracosts);
-                _dbcontext.project_costs.Add(cost);
-                await _dbcontext.SaveChangesAsync();
+                else
+                {
+                    foreach (var item in project.costDetails.extracosts)
+                    {
+                        extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                    }
+                    CostModel.ProjectId = project.ProjectId;
+                    CostModel.CostDetails = JsonConvert.SerializeObject(extracosts);
+                    _dbcontext.project_costs.Update(CostModel);
+                    await _dbcontext.SaveChangesAsync();
+                }
                 return Ok(Constants.Message.AddMessage);
             }
             catch (Exception ex)
@@ -164,18 +203,37 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
-                ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
-                extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = project.sustainabilityDetail.CurrentState, DescribeArr = project.sustainabilityDetail.Describe, ProjectTitleArr = project.sustainabilityDetail.ProjectTitle });
-                strategyAndState.ProjectId = project.ProjectId;
-                strategyAndState.SustainabilityName = project.strategy;
-
-                foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault(); 
+                if (SustainProject == null)
                 {
-                    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                    IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
+                    ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
+                    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = project.sustainabilityDetail.CurrentState, DescribeArr = project.sustainabilityDetail.Describe, ProjectTitleArr = project.sustainabilityDetail.ProjectTitle });
+                    strategyAndState.ProjectId = project.ProjectId;
+                    strategyAndState.SustainabilityName = project.strategy;
+
+                    foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                    {
+                        extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                    }
+                    strategyAndState.Details = JsonConvert.SerializeObject(extra);
+                    _dbcontext.project_strategy_and_state.Add(strategyAndState);
                 }
-                strategyAndState.Details = JsonConvert.SerializeObject(extra);
-                _dbcontext.project_strategy_and_state.Add(strategyAndState);
+                else
+                {
+                    IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
+                    ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
+                    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = project.sustainabilityDetail.CurrentState, DescribeArr = project.sustainabilityDetail.Describe, ProjectTitleArr = project.sustainabilityDetail.ProjectTitle });
+                    SustainProject.ProjectId = project.ProjectId;
+                    SustainProject.SustainabilityName = project.strategy;
+
+                    foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                    {
+                        extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                    }
+                    SustainProject.Details = JsonConvert.SerializeObject(extra);
+                    _dbcontext.project_strategy_and_state.Update(SustainProject);
+                }
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
@@ -408,6 +466,38 @@ namespace ITCPBackend.Controllers
 
 
         #endregion
-
+        #region Dasboard Counts
+        [HttpGet]
+        public async Task<IActionResult> CountsDashboard()
+        {
+            try
+            {
+                var all = _dbcontext.projects.Count();
+                var submit = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Submit).Count();
+                var draft = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Draft).Count();
+                var sectRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectReject).Count();
+                var mdaRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDAReject).Count();
+                var mdaApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDApprove).Count();
+                var sectApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectApprove).Count();
+                var commitee = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Comeetee).Count();
+                var Allcount = new
+                {
+                    all = all,
+                    submit = submit,
+                    draft = draft,
+                    sectRejected = sectRejected,
+                    mdaRejected = mdaRejected,
+                    mdaApprove = mdaApprove,
+                    sectApprove = sectApprove,
+                    commitee = commitee,
+                };
+                return Ok(Allcount);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        #endregion
     }
 }
