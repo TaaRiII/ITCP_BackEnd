@@ -34,27 +34,21 @@ namespace ITCPBackend.Controllers
             var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
             if (project.Id != 0)
             {
-
-                Project pro = new Project()
-                {
-                    MDA = project.MDA,
-                    BudgetCode = project.BudgetCode,
-                    MDASector = (int)project.MDASector,
-                    ModifiedDate = DateTime.Now,
-                };
-                _dbcontext.projects.Add(pro);
+                obj.MDA = project.MDA;
+                obj.BudgetCode = project.BudgetCode;
+                obj.MDASector = (int)project.MDASector;
+                obj.ModifiedDate = DateTime.Now;
+                obj.ModifiedBy = "system";
+                _dbcontext.projects.Update(obj);
                 await _dbcontext.SaveChangesAsync();
-                ProjectDetail prodetail = new ProjectDetail()
-                {
-                    ProjectName = project.ProjectName,
-                    ProjectClassification = project.ProjectClassification,
-                    ProjectDescription = project.ProjectDescription,
-                    ProjectObjectives = project.ProjectObjectives,
-                    ProjectId = pro.Id,
-                };
-                _dbcontext.project_details.Update(prodetail);
+                var projectDetailModel = _dbcontext.project_details.Where(m => m.Id == project.Id).FirstOrDefault();
+                projectDetailModel.ProjectName = project.ProjectName;
+                projectDetailModel.ProjectClassification = project.ProjectClassification;
+                projectDetailModel.ProjectDescription = project.ProjectDescription;
+                projectDetailModel.ProjectObjectives = project.ProjectObjectives;
+                _dbcontext.project_details.Update(projectDetailModel);
                 await _dbcontext.SaveChangesAsync();
-                return Ok();
+                return Ok(obj.Id);
             }
             else
             {
@@ -172,7 +166,7 @@ namespace ITCPBackend.Controllers
                 //{
                 //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
                 //}
-                cost.ProjectId = project.ProjectId;
+                cost.ProjectId = (int)project.ProjectId;
                 cost.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
                 _dbcontext.project_costs.Update(cost);
                 await _dbcontext.SaveChangesAsync();
@@ -192,7 +186,7 @@ namespace ITCPBackend.Controllers
                 //var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
               //  IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
                 ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
-                strategyAndState.ProjectId = project.ProjectId;
+                strategyAndState.ProjectId = (int)project.ProjectId;
                 strategyAndState.SustainabilityName = project.strategy;
 
                 //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
@@ -337,7 +331,62 @@ namespace ITCPBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet]
+        public IActionResult FilteredProjectList(int status, DateTime Fromdate, DateTime Todate)
+        {
+            try
+            {
 
+                if (status == -1)
+                {
+                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                                          from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                          select new CompeteProjectDto
+                                          {
+                                              Id = project.Id,
+                                              MDA = project.MDA,
+                                              BudgetCode = project.BudgetCode,
+                                              MDASector = project.MDASector,
+                                              ProjectName = detail.ProjectName,
+                                              ProjectStatus = project.Status,
+                                              ProjectDescription = detail.ProjectDescription,
+                                              ProjectClassification = detail.ProjectClassification,
+                                              ProjectObjectives = detail.ProjectObjectives,
+                                              ProjectCreated = project.CreatedDate,
+                                              projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                             project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                             project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                          }).ToList();
+                    return Ok(AllJoinProject);
+
+                }
+
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CompeteProjectDto
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       RejectNotes = project.RejectNotes,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectCreated = project.CreatedDate,
+                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                   }).ToList();
+                return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         public IActionResult ProjectProgressList(int status)
         {
@@ -466,6 +515,13 @@ namespace ITCPBackend.Controllers
             {
                 return BadRequest();
             }
+        }
+        #endregion
+        #region Get MDA LIst
+        public IActionResult EntryUsersList()
+        {
+            var EntryList = _dbcontext.clients.Where(m => m.status == Constants.ClientRoleInt.Entry).ToList();
+            return Ok(EntryList);
         }
         #endregion
     }

@@ -10,8 +10,8 @@
 
     public class SustainabilityDto
     {
-        public int Id { get; set; }
-        public int ProjectId { get; set; }
+        public int? Id { get; set; }
+        public int? ProjectId { get; set; }
         public string strategy { get; set; }
         public string JobType { get; set; }
         public SustainabilityDetailDto sustainabilityDetail { get; set; }
