@@ -1,9 +1,8 @@
 ﻿namespace ITCPBackend.DTOs
 {
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class CostDetailsDto
     {
-        public string costdescription { get; set; }
-        public string costamount { get; set; }
         public List<ExtracostDto> extracosts { get; set; }
     }
 
@@ -19,5 +18,7 @@
         public int ProjectId { get; set; }
         public CostDetailsDto costDetails { get; set; }
     }
+
+
 
 }
