@@ -189,18 +189,18 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
-                IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
+                //var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
+              //  IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
                 ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
-                SustainProject.ProjectId = project.ProjectId;
-                SustainProject.SustainabilityName = project.strategy;
+                strategyAndState.ProjectId = project.ProjectId;
+                strategyAndState.SustainabilityName = project.strategy;
 
-                foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
-                {
-                    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
-                }
-                SustainProject.Details = JsonConvert.SerializeObject(extra);
-                _dbcontext.project_strategy_and_state.Update(SustainProject);
+                //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                //{
+                //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                //}
+                strategyAndState.Details = JsonConvert.SerializeObject(project.sustainabilityDetail.addSustainabilityArray);
+                _dbcontext.project_strategy_and_state.Update(strategyAndState);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
