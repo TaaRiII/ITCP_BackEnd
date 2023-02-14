@@ -188,7 +188,7 @@ namespace ITCPBackend.Controllers
                 ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
                 strategyAndState.ProjectId = (int)project.ProjectId;
                 strategyAndState.SustainabilityName = project.strategy;
-
+                strategyAndState.JobType = (int)project.JobType;
                 //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
                 //{
                 //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
@@ -258,15 +258,16 @@ namespace ITCPBackend.Controllers
                                                      ThirdStartDate = duration.ThirdStartDate,
                                                      ThirdEndDate = duration.ThirdEndDate,
                                                      SustainabilityName = sustain.SustainabilityName,
-                                                     Details = sustain.Details,
+                                                     SustainDetails = sustain.Details,
                                                      costId = cost.Id,
                                                      durationId = duration.Id,
                                                      scopeId = scope.Id,
                                                      sutainablityId = sustain.Id,
                                                      costDetail = cost.CostDetails,
-                                                     jobType = sustain.Details,
+                                                     jobType = sustain.JobType,
                                                      ScopeDetails = scope.Details,
-                                                     ProjectStatus = project.Status
+                                                     ProjectStatus = project.Status,
+                                                     ProjectId = project.Id,
                                                  }).FirstOrDefault();
                 return Ok(JoinProject);
             }
@@ -518,9 +519,9 @@ namespace ITCPBackend.Controllers
         }
         #endregion
         #region Get MDA LIst
-        public IActionResult EntryUsersList()
+        public async Task<IActionResult> EntryUsersList()
         {
-            var EntryList = _dbcontext.clients.Where(m => m.status == Constants.ClientRoleInt.Entry).ToList();
+            var EntryList = _dbcontext.clients.Where(m => m.status == Constants.ClientRoleInt.Entry).ToListAsync();
             return Ok(EntryList);
         }
         #endregion

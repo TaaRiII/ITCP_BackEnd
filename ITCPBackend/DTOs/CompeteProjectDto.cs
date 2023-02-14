@@ -21,14 +21,12 @@
         public string? ThirdStartDate { get; set; }
         public string? ThirdEndDate { get; set; }
         public string SustainabilityName { get; set; }
-        public string? Details { get; set; }
-        public string? Deliverable { get; set; }
-        public string? Milestone { get; set; }
+        public string? SustainDetails { get; set; }
         public int? scopeId { get; set; }
         public int? durationId { get; set; }
         public int? sutainablityId { get; set; }
         public int? costId { get; set; }
-        public string? jobType { get; set; }
+        public int? jobType { get; set; }
         public string? costDetail { set; get; }
         public string projectLevel { set; get; }
         public string RejectNotes { set; get; }

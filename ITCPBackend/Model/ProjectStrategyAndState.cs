@@ -6,5 +6,6 @@
         public int ProjectId { get; set; }
         public string SustainabilityName { get; set; }
         public string Details { get; set; }
+        public int JobType { get; set; }
     }
 }
