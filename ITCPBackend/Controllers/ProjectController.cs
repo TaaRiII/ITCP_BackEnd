@@ -42,7 +42,7 @@ namespace ITCPBackend.Controllers
                 obj.ModifiedBy = "system";
                 _dbcontext.projects.Update(obj);
                 await _dbcontext.SaveChangesAsync();
-                var projectDetailModel = _dbcontext.project_details.Where(m => m.Id == project.Id).FirstOrDefault();
+                var projectDetailModel = _dbcontext.project_details.Where(m => m.ProjectId == project.Id).FirstOrDefault();
                 projectDetailModel.ProjectName = project.ProjectName;
                 projectDetailModel.ProjectClassification = project.ProjectClassification;
                 projectDetailModel.ProjectDescription = project.ProjectDescription;
@@ -160,16 +160,33 @@ namespace ITCPBackend.Controllers
                 //var data = _mapper.Map<ProjectCost>(project);
 
                 //IList<ExtracostDto> extracosts = new List<ExtracostDto>();
-                ProjectCost cost = new ProjectCost();
-                //extracosts.Add(new ExtracostDto { description = project.costDetails.costdescription, amount = project.costDetails.costamount });
-                // var project = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
-                //foreach (var item in project.costDetails.extracosts)
-                //{
-                //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
-                //}
-                cost.ProjectId = (int)project.ProjectId;
-                cost.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
-                _dbcontext.project_costs.Update(cost);
+                var CostModel = _dbcontext.project_costs.Where(m => m.Id == project.Id).FirstOrDefault();
+                if(CostModel == null)
+                {
+                    ProjectCost cost = new ProjectCost();
+                    //extracosts.Add(new ExtracostDto { description = project.costDetails.costdescription, amount = project.costDetails.costamount });
+                    // var project = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
+                    //foreach (var item in project.costDetails.extracosts)
+                    //{
+                    //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                    //}
+                    cost.ProjectId = (int)project.ProjectId;
+                    cost.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
+                    _dbcontext.project_costs.Add(cost);
+                }
+                else
+                {
+                    //extracosts.Add(new ExtracostDto { description = project.costDetails.costdescription, amount = project.costDetails.costamount });
+                    // var project = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
+                    //foreach (var item in project.costDetails.extracosts)
+                    //{
+                    //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
+                    //}
+                    CostModel.ProjectId = (int)project.ProjectId;
+                    CostModel.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
+                    _dbcontext.project_costs.Update(CostModel);
+                }
+                
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
@@ -186,16 +203,32 @@ namespace ITCPBackend.Controllers
             {
                 //var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
               //  IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
-                ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
-                strategyAndState.ProjectId = (int)project.ProjectId;
-                strategyAndState.SustainabilityName = project.strategy;
-                strategyAndState.JobType = (int)project.JobType;
-                //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
-                //{
-                //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
-                //}
-                strategyAndState.Details = JsonConvert.SerializeObject(project.sustainabilityDetail.addSustainabilityArray);
-                _dbcontext.project_strategy_and_state.Update(strategyAndState);
+              var SustainModel = _dbcontext.project_strategy_and_state.Where(m => m.Id != project.Id).FirstOrDefault();
+                if(SustainModel == null)
+                {
+                    ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
+                    strategyAndState.ProjectId = (int)project.ProjectId;
+                    strategyAndState.SustainabilityName = project.strategy;
+                    strategyAndState.JobType = (int)project.JobType;
+                    //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                    //{
+                    //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                    //}
+                    strategyAndState.Details = JsonConvert.SerializeObject(project.sustainabilityDetail.addSustainabilityArray);
+                    _dbcontext.project_strategy_and_state.Add(strategyAndState);
+                }
+                else
+                {
+                    SustainModel.ProjectId = (int)project.ProjectId;
+                    SustainModel.SustainabilityName = project.strategy;
+                    SustainModel.JobType = (int)project.JobType;
+                    //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
+                    //{
+                    //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
+                    //}
+                    SustainModel.Details = JsonConvert.SerializeObject(project.sustainabilityDetail.addSustainabilityArray);
+                    _dbcontext.project_strategy_and_state.Update(SustainModel);
+                }
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
             }
