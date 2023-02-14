@@ -32,6 +32,7 @@ namespace ITCPBackend.Data
         public DbSet<ITCPBackend.Model.ProjectScope> project_scopes { get; set; }
         public DbSet<ITCPBackend.Model.CostBreakDown> cost_break_down { get; set; }
         public DbSet<ITCPBackend.Model.ProjectStrategyAndState> project_strategy_and_state { get; set; }
+        public DbSet<ITCPBackend.Model.Notification> Notifications { get; set; }
 
     }
 }
