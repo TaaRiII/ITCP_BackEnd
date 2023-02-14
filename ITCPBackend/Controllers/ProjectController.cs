@@ -10,6 +10,7 @@ using NuGet.Common;
 using NuGet.Protocol;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text.Json.Nodes;
 
@@ -435,6 +436,7 @@ namespace ITCPBackend.Controllers
 
 
         #endregion
+
         #region Dasboard Counts
         [HttpGet]
         public async Task<IActionResult> CountsDashboard()
@@ -468,5 +470,45 @@ namespace ITCPBackend.Controllers
             }
         }
         #endregion
+
+        #region Notification
+        [HttpPost]
+
+        public async Task<IActionResult> AddNotification(NotificationDto input) 
+        {
+            try
+            {
+                var data = _mapper.Map<Notification>(input);
+                _dbcontext.Notifications.Add(data);
+                _dbcontext.SaveChanges();
+                return Ok("Data Saved");
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotification(int UserId)
+        {
+            try
+            {
+                var data=_dbcontext.Notifications.Where(m => m.ToID == UserId).ToList();
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+
+        }
+
+
+        #endregion
+
     }
 }

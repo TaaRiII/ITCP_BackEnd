@@ -10,6 +10,7 @@ namespace ITCPBackend.Helper
         public MappingProfile()
         {
             CreateMap<ProjectDurationModel, ProjectDuration>().ReverseMap();
+            CreateMap<Notification, NotificationDto>().ReverseMap();
             //CreateMap<ProjectCostDto, ProjectCost>().ForMember(dest => dest.CostDetails,opt=> opt.MapFrom(src=>JsonConvert.SerializeObject(src.CostDetails))).ReverseMap();
         }
     }
