@@ -40,6 +40,7 @@ namespace ITCPBackend.Controllers
                 obj.MDASector = (int)project.MDASector;
                 obj.ModifiedDate = DateTime.Now;
                 obj.ModifiedBy = "system";
+                obj.ClientId = 2;
                 _dbcontext.projects.Update(obj);
                 await _dbcontext.SaveChangesAsync();
                 var projectDetailModel = _dbcontext.project_details.Where(m => m.ProjectId == project.Id).FirstOrDefault();
@@ -60,7 +61,8 @@ namespace ITCPBackend.Controllers
                     MDASector = (int)project.MDASector,
                     CreatedDate = DateTime.Now,
                     CreatedBy = "System",
-                };
+                    ClientId = 2,
+            };
                 _dbcontext.projects.Add(pro);
                 await _dbcontext.SaveChangesAsync();
                 ProjectDetail prodetail = new ProjectDetail()
@@ -70,7 +72,7 @@ namespace ITCPBackend.Controllers
                     ProjectDescription = project.ProjectDescription,
                     ProjectObjectives = project.ProjectObjectives,
                     ProjectId = pro.Id,
-                };
+            };
                 _dbcontext.project_details.Update(prodetail);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(pro.Id);
@@ -367,14 +369,14 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
-        public IActionResult FilteredProjectList(int status, DateTime Fromdate, DateTime Todate)
+        public IActionResult FilteredProjectList(int status, DateTime Fromdate, DateTime Todate, int entryUserId)
         {
             try
             {
 
                 if (status == -1)
                 {
-                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && m.ClientId == entryUserId)
                                           from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                           select new CompeteProjectDto
                                           {
@@ -461,7 +463,7 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
-        public IActionResult ProjectFiterProgressList(int status, DateTime? Fromdate, DateTime? Todate)
+        public IActionResult ProjectFiterProgressList(int status, DateTime? Fromdate, DateTime? Todate, int entryUserId)
         {
             try
             {
@@ -470,7 +472,7 @@ namespace ITCPBackend.Controllers
                 //    FromDate = DateTime.Parse(Fromdate);
                 //    ToDate = DateTime.Parse(Todate);
                 //}
-                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status >= status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status >= status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && m.ClientId == entryUserId)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
                                    {
