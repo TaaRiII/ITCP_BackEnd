@@ -304,6 +304,7 @@ namespace ITCPBackend.Controllers
                                                      ScopeDetails = scope.Details,
                                                      ProjectStatus = project.Status,
                                                      ProjectId = project.Id,
+                                                     policies = project.Policies,
                                                  }).FirstOrDefault();
                 return Ok(JoinProject);
             }

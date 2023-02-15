@@ -32,5 +32,6 @@
         public string RejectNotes { set; get; }
         public int ProjectStatus { set; get; }
         public string ScopeDetails { get; set; }
+        public string? policies { get; set; }
     }
 }
