@@ -32,6 +32,10 @@ namespace ITCPBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUpdateProject(ProjectModel project)
         {
+            string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = new JwtSecurityToken(accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            Client getClient = _dbcontext.clients.Find(claimsId);
             var obj = _dbcontext.projects.Where(m => m.Id == project.Id).FirstOrDefault();
             if (project.Id != 0)
             {
@@ -39,8 +43,8 @@ namespace ITCPBackend.Controllers
                 obj.BudgetCode = project.BudgetCode;
                 obj.MDASector = (int)project.MDASector;
                 obj.ModifiedDate = DateTime.Now;
-                obj.ModifiedBy = "system";
-                obj.ClientId = 2;
+                obj.ModifiedBy = getClient.Username;
+                obj.ClientId = getClient.Id;
                 _dbcontext.projects.Update(obj);
                 await _dbcontext.SaveChangesAsync();
                 var projectDetailModel = _dbcontext.project_details.Where(m => m.ProjectId == project.Id).FirstOrDefault();
@@ -60,8 +64,8 @@ namespace ITCPBackend.Controllers
                     BudgetCode = project.BudgetCode,
                     MDASector = (int)project.MDASector,
                     CreatedDate = DateTime.Now,
-                    CreatedBy = "System",
-                    ClientId = 2,
+                    CreatedBy = getClient.Username,
+                    ClientId = getClient.Id,
             };
                 _dbcontext.projects.Add(pro);
                 await _dbcontext.SaveChangesAsync();
