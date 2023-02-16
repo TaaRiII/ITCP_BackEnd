@@ -2,6 +2,7 @@
 using ITCPBackend.Data;
 using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
+using ITCPBackend.Migrations;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -134,7 +135,6 @@ namespace ITCPBackend.Controllers
                 {
                     ProjectScope pro = new ProjectScope()
                     {
-                        Id = project.Id,
                         Details = JsonConvert.SerializeObject(project.ScopeDetail.detail),
                         ProjectId = project.ProjectId
                     };
@@ -142,7 +142,6 @@ namespace ITCPBackend.Controllers
                 }
                 else
                 {
-                    ScopeProject.Id = project.Id;
                     ScopeProject.Details = JsonConvert.SerializeObject(project.ScopeDetail.detail);
                     ScopeProject.ProjectId = project.ProjectId;
                     _dbcontext.project_scopes.Update(ScopeProject);
@@ -176,7 +175,6 @@ namespace ITCPBackend.Controllers
                     //{
                     //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
                     //}
-                    cost.ProjectId = (int)project.ProjectId;
                     cost.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
                     _dbcontext.project_costs.Add(cost);
                 }
@@ -188,7 +186,6 @@ namespace ITCPBackend.Controllers
                     //{
                     //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
                     //}
-                    CostModel.ProjectId = (int)project.ProjectId;
                     CostModel.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
                     _dbcontext.project_costs.Update(CostModel);
                 }
@@ -213,7 +210,6 @@ namespace ITCPBackend.Controllers
                 if(SustainModel == null)
                 {
                     ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
-                    strategyAndState.ProjectId = (int)project.ProjectId;
                     strategyAndState.SustainabilityName = project.strategy;
                     strategyAndState.JobType = (int)project.JobType;
                     //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
@@ -225,7 +221,6 @@ namespace ITCPBackend.Controllers
                 }
                 else
                 {
-                    SustainModel.ProjectId = (int)project.ProjectId;
                     SustainModel.SustainabilityName = project.strategy;
                     SustainModel.JobType = (int)project.JobType;
                     //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
@@ -251,10 +246,17 @@ namespace ITCPBackend.Controllers
             {
                 var res = _dbcontext.projects.Where(m => m.Id == project.ProjectId).FirstOrDefault();
                 res.Policies = project.Policies;
-                if (res.Status == (int)Constants.ProjectStatus.Draft)
+                if (res.Status == (int)Constants.ProjectStatus.Draft || res.Status == (int)Constants.ProjectStatus.MDAReject)
                 {
                     res.Status = (int)Constants.ProjectStatus.Submit;
+                    //Notification notification = new Notification();
+                    //notification.CratedDate = DateTime.Now;
+                    //notification.Status = 0;
+                    //notification.ToID = 
+                    //var data = _mapper.Map<Notification>(input);
+                    //_dbcontext.Notifications.Add(data);
                 }
+
                 _dbcontext.projects.Update(res);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(Constants.Message.AddMessage);
@@ -583,18 +585,21 @@ namespace ITCPBackend.Controllers
         #region Get MDA LIst
         public async Task<IActionResult> EntryUsersList()
         {
-            var EntryList = _dbcontext.clients.Where(m => m.status == Constants.ClientRoleInt.Entry).ToListAsync();
+            var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry).ToList();
             return Ok(EntryList);
         }
 
 
 
         [HttpGet]
-        public async Task<IActionResult> GetNotification(int UserId)
+        public async Task<IActionResult> GetNotification()
         {
             try
             {
-                var data=_dbcontext.Notifications.Where(m => m.ToID == UserId).ToList();
+                string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = new JwtSecurityToken(accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                var data=_dbcontext.Notifications.Where(m => m.ToID == claimsId).ToList();
                 return Ok(data);
             }
             catch (Exception ex)

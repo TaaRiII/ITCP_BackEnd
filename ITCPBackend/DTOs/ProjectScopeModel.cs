@@ -10,7 +10,7 @@
 
     public class ProjectScopeModel
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public ScopeDetail ScopeDetail { get; set; }
         public int ProjectId { get; set; }
     }
