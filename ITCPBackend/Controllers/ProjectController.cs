@@ -244,17 +244,33 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+                string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = new JwtSecurityToken(accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
                 var res = _dbcontext.projects.Where(m => m.Id == project.ProjectId).FirstOrDefault();
                 res.Policies = project.Policies;
                 if (res.Status == (int)Constants.ProjectStatus.Draft || res.Status == (int)Constants.ProjectStatus.MDAReject)
                 {
+                    var MDAModel = _dbcontext.clients.Where(m => m.Id == claimsId).FirstOrDefault();
+                    Notification notification = new Notification();
+                    notification.CreatedDate = DateTime.Now;
+                    notification.Status = 0;
+                    notification.ToID = (int)MDAModel.MDAId;
+                    notification.FromID = claimsId;
+                    notification.ProjectId = project.ProjectId;
+                    if (res.Status == (int)Constants.ProjectStatus.Draft)
+                    {
+                        notification.NotificationName = "New Application";
+                        notification.Msg = "Added By the" + MDAModel.Name;
+                    }
+                    else
+                    {
+                        notification.NotificationName = "Resubmitted Application";
+                        notification.Msg = "Application are Received from Rejected Applications By the" + MDAModel.Name;
+                    }
+                    _dbcontext.Notifications.Add(notification);
                     res.Status = (int)Constants.ProjectStatus.Submit;
-                    //Notification notification = new Notification();
-                    //notification.CratedDate = DateTime.Now;
-                    //notification.Status = 0;
-                    //notification.ToID = 
-                    //var data = _mapper.Map<Notification>(input);
-                    //_dbcontext.Notifications.Add(data);
+                    
                 }
 
                 _dbcontext.projects.Update(res);
@@ -469,7 +485,8 @@ namespace ITCPBackend.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }  [HttpGet]
+        }  
+        [HttpGet]
         public IActionResult ProjectProgressListMda(int status)
         {
             try
@@ -552,10 +569,23 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+                string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = new JwtSecurityToken(accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
                 var res = _dbcontext.projects.Where(m => m.Id == status.ProjectId).FirstOrDefault();
                 res.Status = status.NewStatus;
                 res.RejectNotes = status.Note == "nc" ? res.RejectNotes : status.Note;
                 _dbcontext.projects.Update(res);
+                var EntryModel = _dbcontext.clients.Where(m => m.Id == claimsId).FirstOrDefault();
+                Notification notification = new Notification();
+                notification.CreatedDate = DateTime.Now;
+                notification.Status = 0;
+                notification.ToID = res.ClientId;
+                notification.FromID = claimsId;
+                notification.ProjectId = status.ProjectId;
+                notification.NotificationName = "Rejected Application";
+                notification.Msg = "Application are Rejected By the" + EntryModel.Name;
+                _dbcontext.Notifications.Add(notification);
                 await _dbcontext.SaveChangesAsync();
                 return Ok(res);
             }
@@ -604,7 +634,6 @@ namespace ITCPBackend.Controllers
 
         #region Notification
         [HttpPost]
-
         public async Task<IActionResult> AddNotification(NotificationDto input) 
         {
             try
@@ -622,14 +651,12 @@ namespace ITCPBackend.Controllers
         }
         #endregion
         #region Get MDA LIst
+        [HttpGet]
         public async Task<IActionResult> EntryUsersList()
         {
             var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry).ToList();
             return Ok(EntryList);
         }
-
-
-
         [HttpGet]
         public async Task<IActionResult> GetNotification()
         {
@@ -638,8 +665,28 @@ namespace ITCPBackend.Controllers
                 string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 var token = new JwtSecurityToken(accesstoken);
                 var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                var data=_dbcontext.Notifications.Where(m => m.ToID == claimsId).ToList();
-                return Ok(data);
+                var data=_dbcontext.Notifications.Where(m => m.ToID == claimsId && m.Status == 0).ToList();
+                IList<NotificationModelForResponce> NotificationObjList = new List<NotificationModelForResponce>();
+                foreach (var item in data)
+                {
+                    var SenderName = _dbcontext.clients.Where(m => m.Id == item.FromID).Select(m => m.Name).FirstOrDefault();
+                    var ProjectName = _dbcontext.project_details.Where(m => m.ProjectId == item.ProjectId).Select(m => m.ProjectName).FirstOrDefault();
+                    NotificationModelForResponce NotificationObj = new NotificationModelForResponce
+                    {
+                        ProjectId = item.ProjectId,
+                        SenderName = SenderName,
+                        NotificationTime = (DateTime.Now - item.CreatedDate).Minutes,
+                        ToID = item.ToID,
+                        FromID = item.FromID,
+                        NotificationName = item.NotificationName,
+                        Id = item.Id,
+                        Msg = item.Msg,
+                        ProjectName = ProjectName,
+                    };
+                    NotificationObjList.Add(NotificationObj);
+                }
+
+                return Ok(NotificationObjList);
             }
             catch (Exception ex)
             {
@@ -647,8 +694,15 @@ namespace ITCPBackend.Controllers
             }
 
         }
-
-
+        [HttpPost]
+        public IActionResult ChangeNotificationStatus(int Id)
+        {
+            var Notification = _dbcontext.Notifications.Where(m => m.Id == Id).FirstOrDefault();
+            Notification.Status = 1;
+            _dbcontext.Notifications.Update(Notification);
+            _dbcontext.SaveChanges();
+            return Ok();
+        }
         #endregion
 
     }
