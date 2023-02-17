@@ -378,12 +378,12 @@ namespace ITCPBackend.Controllers
         [HttpGet]
         public IActionResult FilteredProjectList(int status, DateTime Fromdate, DateTime Todate, int entryUserId)
         {
-            try
+            try 
             {
 
                 if (status == -1)
                 {
-                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && m.ClientId == entryUserId)
+                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && entryUserId != 0 ? m.ClientId == entryUserId : true)
                                           from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                           select new CompeteProjectDto
                                           {
@@ -443,7 +443,7 @@ namespace ITCPBackend.Controllers
                 //}
 
 
-                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status >= status)
                                    from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                    select new CompeteProjectDto
                                    {
@@ -460,9 +460,48 @@ namespace ITCPBackend.Controllers
                                        ProjectCreated = project.CreatedDate,
                                        projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
                                                                       project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
-                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectReject ? "Level 0" : ""
                                    }).ToList();
                 return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }  [HttpGet]
+        public IActionResult ProjectProgressListMda(int status)
+        {
+            try
+            {
+                //if(Fromdate != null && Todate != null)
+                //{
+                //    FromDate = DateTime.Parse(Fromdate);
+                //    ToDate = DateTime.Parse(Todate);
+                //}
+
+
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status >= status)
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CompeteProjectDto
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       RejectNotes = project.RejectNotes,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectStatus = project.Status,
+                                       ProjectCreated = project.CreatedDate,
+                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectReject ? "Level 0" : ""
+                                   }).ToList();
+                return Ok(JoinProject.Where(m => m.ProjectStatus != 3).ToList());
             }
             catch (Exception ex)
             {
