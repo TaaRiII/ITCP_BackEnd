@@ -671,6 +671,7 @@ namespace ITCPBackend.Controllers
                 {
                     var SenderName = _dbcontext.clients.Where(m => m.Id == item.FromID).Select(m => m.Name).FirstOrDefault();
                     var ProjectName = _dbcontext.project_details.Where(m => m.ProjectId == item.ProjectId).Select(m => m.ProjectName).FirstOrDefault();
+                    var RejectedNote = _dbcontext.projects.Where(m => m.Id == item.ProjectId).Select(m => m.RejectNotes).FirstOrDefault();
                     NotificationModelForResponce NotificationObj = new NotificationModelForResponce
                     {
                         ProjectId = item.ProjectId,
@@ -682,6 +683,7 @@ namespace ITCPBackend.Controllers
                         Id = item.Id,
                         Msg = item.Msg,
                         ProjectName = ProjectName,
+                        RejectedNote = RejectedNote,
                     };
                     NotificationObjList.Add(NotificationObj);
                 }

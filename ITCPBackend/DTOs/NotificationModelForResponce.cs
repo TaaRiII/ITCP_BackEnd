@@ -12,5 +12,6 @@
         public string? NotificationName { get; set; }
         public string? SenderName { get; set; }
         public string? ProjectName { get; set; }
+        public string? RejectedNote { get; set; }
     }
 }
