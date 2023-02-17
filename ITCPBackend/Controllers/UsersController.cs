@@ -139,23 +139,24 @@ namespace ITCPBackend.Controllers
                 Username = objModel.Username,
                 status = Constants.Status.Active,
                 Role = objModel.Role,
+                MDAId = objModel.Role == Constants.ClientRoleInt.Entry ? objModel.MDAId : 0,
             };
             _dbcontext.clients.Add(client);
             _dbcontext.SaveChanges();
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Hello!");
-            sb.AppendLine("Dear your account on ITCP are created successfully below your credential!");
-            sb.AppendLine("Username:- " + objModel.Username);
-            sb.AppendLine("Password:- " + objModel.Password);
-            sb.AppendLine("Regards");
-            sb.AppendLine("ITCP Admin");
-            EmailSetting setting = new EmailSetting()
-            {
-                ToEmail = objModel.Email,
-                EmailString = sb.ToString(),
-                EmailBody = "Account Create For ITCP",
-            };
-            SendEmail(setting);
+            //StringBuilder sb = new StringBuilder();
+            //sb.AppendLine("Hello!");
+            //sb.AppendLine("Dear your account on ITCP are created successfully below your credential!");
+            //sb.AppendLine("Username:- " + objModel.Username);
+            //sb.AppendLine("Password:- " + objModel.Password);
+            //sb.AppendLine("Regards");
+            //sb.AppendLine("ITCP Admin");
+            //EmailSetting setting = new EmailSetting()
+            //{
+            //    ToEmail = objModel.Email,
+            //    EmailString = sb.ToString(),
+            //    EmailBody = "Account Create For ITCP",
+            //};
+            //SendEmail(setting);
             var msg = "User Added Successfully";
             return Ok(msg);
         }
@@ -377,5 +378,13 @@ namespace ITCPBackend.Controllers
         public string testt() {
             return "Api is ruiing";
         }
+        #region Get MDA LIst
+        [HttpGet]
+        public async Task<IActionResult> MDAUsersList()
+        {
+            var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.MasterMDA).ToList();
+            return Ok(EntryList);
+        }
+        #endregion
     }
 }

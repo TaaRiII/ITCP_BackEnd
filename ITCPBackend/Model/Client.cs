@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System.ComponentModel.DataAnnotations;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ITCPBackend.Model
@@ -13,6 +14,7 @@ namespace ITCPBackend.Model
         public string? Password { get; set; }
         public int? Role { get; set; }
         public int? status { get; set; }
+        public int? MDAId { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? ModifyBy { get; set; }

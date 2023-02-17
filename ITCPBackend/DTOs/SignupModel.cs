@@ -9,5 +9,6 @@
         public string? Password { get; set; }
         public int? Role { get; set; }
         public int? status { get; set; }
+        public int? MDAId { get; set; }
     }
 }
