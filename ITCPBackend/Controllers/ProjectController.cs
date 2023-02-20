@@ -176,6 +176,7 @@ namespace ITCPBackend.Controllers
                     //    extracosts.Add(new ExtracostDto { description = item.description, amount = item.amount });
                     //}
                     cost.CostDetails = JsonConvert.SerializeObject(project.costDetails.extracosts);
+                    cost.ProjectId = project.ProjectId.Value;
                     _dbcontext.project_costs.Add(cost);
                 }
                 else

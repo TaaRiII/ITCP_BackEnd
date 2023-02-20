@@ -376,7 +376,7 @@ namespace ITCPBackend.Controllers
 
         [HttpGet]
         public string testt() {
-            return "Api is ruiing";
+            return "Api is ruiing123";
         }
         #region Get MDA LIst
         [HttpGet]
@@ -384,6 +384,29 @@ namespace ITCPBackend.Controllers
         {
             var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.MasterMDA).ToList();
             return Ok(EntryList);
+        }
+        #endregion
+        #region Dashboard Graphies data
+        [HttpGet]
+        public IEnumerable<ChartData> GetProjectChartData()
+        {
+            var all = _dbcontext.projects.Where(m => m.Status != (int)Constants.ProjectStatus.Draft && m.Status != (int)Constants.ProjectStatus.Submit && m.Status != (int)Constants.ProjectStatus.MDAReject).Count();
+            var submit = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Submit).Count();
+            var draft = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Draft).Count();
+            var sectRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectReject).Count();
+            var mdaRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDAReject).Count();
+            var mdaApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDApprove).Count();
+            var sectApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectApprove).Count();
+            var commitee = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Comeetee).Count();
+            var data = new List<ChartData>
+            {
+                new ChartData { Region = "All", Value = all },
+                new ChartData { Region = "New Project", Value = mdaApprove },
+                new ChartData { Region = "Approved Secretariat", Value = sectApprove },
+                new ChartData { Region = "Reject Secretariat", Value = sectRejected },
+                new ChartData { Region = "Commitee", Value = commitee },
+            };
+            return data;
         }
         #endregion
     }
