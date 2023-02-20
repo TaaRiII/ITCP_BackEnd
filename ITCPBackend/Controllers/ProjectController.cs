@@ -207,12 +207,13 @@ namespace ITCPBackend.Controllers
             {
                 //var SustainProject = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
               //  IList<AddSustainabilityArrayDto> extra = new List<AddSustainabilityArrayDto>();
-              var SustainModel = _dbcontext.project_strategy_and_state.Where(m => m.Id != project.Id).FirstOrDefault();
+              var SustainModel = _dbcontext.project_strategy_and_state.Where(m => m.Id == project.Id).FirstOrDefault();
                 if(SustainModel == null)
                 {
                     ProjectStrategyAndState strategyAndState = new ProjectStrategyAndState();
                     strategyAndState.SustainabilityName = project.strategy;
                     strategyAndState.JobType = (int)project.JobType;
+                    strategyAndState.ProjectId = project.ProjectId.Value;
                     //foreach (var item in project.sustainabilityDetail.addSustainabilityArray)
                     //{
                     //    extra.Add(new AddSustainabilityArrayDto { CurrentStateArr = item.CurrentStateArr, DescribeArr = item.DescribeArr, ProjectTitleArr = item.ProjectTitleArr });
@@ -292,6 +293,7 @@ namespace ITCPBackend.Controllers
         {
             try
             {
+            var sdsd=    _dbcontext.project_strategy_and_state.Where(m => m.ProjectId == id).ToList();
                 CompeteProjectDto JoinProject = (from project in _dbcontext.projects.Where(m => m.Id == id)
                                                  from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                                  from duration in _dbcontext.project_durations.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
