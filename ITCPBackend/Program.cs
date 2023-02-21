@@ -3,6 +3,7 @@ using ITCPBackend.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ITCPBackendContext>(options =>
@@ -14,6 +15,13 @@ builder.Services.AddDbContext<ITCPBackendContext>(options =>
     } ));
 //?? throw new InvalidOperationException("Connection string 'ITCPBackendContext' not found.")
 // Add services to the container.
+builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader()
+/*           .WithOrigins("https://testfront1.azurewebsites.net")*/;
+}));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -23,10 +31,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //services cors
-builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
-{
-    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-}));
+//builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+//{
+//    builder.WithOrigins("https://testfront1.azurewebsites.net").AllowAnyHeader().WithExposedHeaders("Authorization").AllowAnyMethod();
+//}));
 
 
 #region JWT
@@ -47,14 +55,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #endregion
 
 var app = builder.Build();
+app.UseCors("MyPolicy");
 
 // Configure the HTTP request pipeline.
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 
-
 app.UseHttpsRedirection();
-app.UseCors(policy => policy.AllowAnyHeader().AllowAnyOrigin());
+
 
 
 app.UseAuthentication();
