@@ -2,7 +2,7 @@
 {
     public class ChartData
     {
-        public string Region { get; set; }
+        public string Key { get; set; }
         public int Value { get; set; }
     }
 }
