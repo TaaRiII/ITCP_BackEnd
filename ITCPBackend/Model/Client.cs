@@ -15,6 +15,7 @@ namespace ITCPBackend.Model
         public int? Role { get; set; }
         public int? status { get; set; }
         public int? MDAId { get; set; }
+        public string? Minisitry { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? ModifyBy { get; set; }
