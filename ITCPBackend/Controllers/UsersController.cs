@@ -12,6 +12,7 @@ using System.Net;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ITCPBackend.Controllers
 {
@@ -84,25 +85,59 @@ namespace ITCPBackend.Controllers
             return Ok(UsersList);
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateUser(Users user)
+        public async Task<IActionResult> AddUpdateUser(UserModel user)
         {
-            if(user.Id != 0)
+            //if(user.Id != 0)
+            //{
+            //    //Users userExist = _dbcontext.Users.Where(m => m.Id == user.Id).ToList();
+            //    //user.ModifyBy = "system";
+            //    //user.CreatedDate = DateTime.Now;
+            //    //_dbcontext.Users.Update(user);
+            //    //await _dbcontext.SaveChangesAsync();
+            //    return Ok();
+            //}
+            //else
+            //{
+            //    //user.CreatedBy = "System";
+            //    //user.CreatedDate = DateTime.Now;
+            //    //_dbcontext.Users.Add(user);
+            //    //await _dbcontext.SaveChangesAsync();
+            //    return Ok();
+            //}
+            string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = new JwtSecurityToken(accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            //var createrId = _dbcontext.Users.Where(m => m.Id == claimsId).Select(m => m.Username).FirstOrDefault();
+            Client userNew = new Client();
+            if (user.role == Constants.ClientRoleInt.Entry)
             {
-                //Users userExist = _dbcontext.Users.Where(m => m.Id == user.Id).ToList();
-                user.ModifyBy = "system";
-                user.CreatedDate = DateTime.Now;
-                _dbcontext.Users.Update(user);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                userNew.PhoneNumber = user.PhoneNo;
+                userNew.Name = user.Name;
+                userNew.Email = user.Email;
+                userNew.Username = user.Username;
+                userNew.Password = user.Password;
+                userNew.Role = user.role;
+                userNew.MDAId = user.mdaId;
+                userNew.status = Constants.Status.Active;
+                userNew.CreatedBy = claimsId.ToString();
+                userNew.CreatedDate = DateTime.Now;
             }
             else
             {
-                user.CreatedBy = "System";
-                user.CreatedDate = DateTime.Now;
-                _dbcontext.Users.Add(user);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                userNew.PhoneNumber = user.PhoneNo;
+                userNew.Name = user.Name;
+                userNew.Email = user.Email;
+                userNew.Minisitry = user.minisitry;
+                userNew.Username = user.Username;
+                userNew.Password = user.Password;
+                userNew.Role = user.role;
+                userNew.status = Constants.Status.Active;
+                userNew.CreatedBy = claimsId.ToString();
+                userNew.CreatedDate = DateTime.Now;
             }
+            _dbcontext.clients.Add(userNew);
+            _dbcontext.SaveChanges();
+            return Ok();
         }
         //[HttpPost]
         //public async Task<IActionResult> AddUpdateDepartment(Department obj)
