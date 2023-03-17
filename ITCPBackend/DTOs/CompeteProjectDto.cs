@@ -33,5 +33,7 @@
         public int ProjectStatus { set; get; }
         public string ScopeDetails { get; set; }
         public string? policies { get; set; }
+        public double? persentage { get; set; }
+        public int? countCommittee { get; set; }
     }
 }

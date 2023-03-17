@@ -4,6 +4,7 @@ using ITCPBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITCPBackend.Migrations
 {
     [DbContext(typeof(ITCPBackendContext))]
-    partial class ITCPBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20230313180238_new table add for rate and qourm")]
+    partial class newtableaddforrateandqourm
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

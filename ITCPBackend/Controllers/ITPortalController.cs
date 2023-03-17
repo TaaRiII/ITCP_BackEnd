@@ -4,6 +4,8 @@ using ITCPBackend.DTOs;
 using ITCPBackend.Helper;
 using ITCPBackend.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace ITCPBackend.Controllers
@@ -223,6 +225,159 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
+        public IActionResult CommitteeProjectList(int status)
+        {
+            try
+            {
+                if (status == -1)
+                {
+                    var AllJoinProject = (from project in _dbcontext.projects
+                                          from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                          select new CommitteeProjectListModel
+                                          {
+                                              Id = project.Id,
+                                              MDA = project.MDA,
+                                              BudgetCode = project.BudgetCode,
+                                              MDASector = project.MDASector,
+                                              ProjectName = detail.ProjectName,
+                                              ProjectStatus = project.Status,
+                                              ProjectDescription = detail.ProjectDescription,
+                                              ProjectClassification = detail.ProjectClassification,
+                                              ProjectObjectives = detail.ProjectObjectives,
+                                              ProjectCreated = project.CreatedDate,
+                                              projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                             project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                             project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                              persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                              countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                          }).ToList();
+
+
+                    return Ok(AllJoinProject);
+                }
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CommitteeProjectListModel
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       RejectNotes = project.RejectNotes,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectCreated = project.CreatedDate,
+                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                       persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                       countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                   }).ToList();
+                return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        public IActionResult FilteredCommitteeProjectList(int status, DateTime Fromdate, DateTime Todate, int entryUserId)
+        {
+            try
+            {
+                if (status == -1)
+                {
+                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && entryUserId != 0 ? m.ClientId == entryUserId : true)
+                                          from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                          select new CompeteProjectDto
+                                          {
+                                              Id = project.Id,
+                                              MDA = project.MDA,
+                                              BudgetCode = project.BudgetCode,
+                                              MDASector = project.MDASector,
+                                              ProjectName = detail.ProjectName,
+                                              ProjectStatus = project.Status,
+                                              ProjectDescription = detail.ProjectDescription,
+                                              ProjectClassification = detail.ProjectClassification,
+                                              ProjectObjectives = detail.ProjectObjectives,
+                                              ProjectCreated = project.CreatedDate,
+                                              projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                             project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                             project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                              persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                              countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                          }).ToList();
+                    return Ok(AllJoinProject);
+                }
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   select new CompeteProjectDto
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       RejectNotes = project.RejectNotes,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectCreated = project.CreatedDate,
+                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                       persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                       countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                   }).ToList();
+                return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        public IActionResult CommitteeRateProjectList(int status)
+        {
+            try
+            {
+                string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = new JwtSecurityToken(accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status)
+                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                   from rate in _dbcontext.project_rate.Where(m => m.projectId == project.Id && m.committeeId == claimsId)
+                                   select new CommitteeProjectListModel
+                                   {
+                                       Id = project.Id,
+                                       MDA = project.MDA,
+                                       BudgetCode = project.BudgetCode,
+                                       MDASector = project.MDASector,
+                                       ProjectName = detail.ProjectName,
+                                       RejectNotes = project.RejectNotes,
+                                       ProjectDescription = detail.ProjectDescription,
+                                       ProjectStatus = project.Status,
+                                       ProjectClassification = detail.ProjectClassification,
+                                       ProjectObjectives = detail.ProjectObjectives,
+                                       ProjectCreated = project.CreatedDate,
+                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                       persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                       countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                   }).ToList();
+                return Ok(JoinProject);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
         public IActionResult ProjectProgressListMda(int status)
         {
             try
@@ -290,6 +445,51 @@ namespace ITCPBackend.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        #endregion
+        #region Committee
+        [HttpPost]
+        public IActionResult AddRateProject(ProjectRateModel oRate)
+        {
+            string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = new JwtSecurityToken(accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            var sectId = _dbcontext.Users.Where(m => m.Id == claimsId).Any();
+            if (sectId)
+            {
+                ProjectRate projectRate = new ProjectRate();
+                projectRate.projectId = oRate.projectId;
+                projectRate.rate = oRate.rate;
+                projectRate.committeeId = claimsId;
+                _dbcontext.project_rate.Add(projectRate);
+                _dbcontext.SaveChanges();
+            }
+            decimal Rate = _dbcontext.project_rate.Where(m => m.projectId == oRate.projectId).Select(m => m.rate).Sum();
+            decimal per = (Rate / 300) * 100;
+            if(per > 60)
+            {
+                var oProject = _dbcontext.projects.Where(m => m.Id == oRate.projectId).FirstOrDefault();
+                if (oProject != null)
+                {
+                    oProject.Status = 6;
+                    _dbcontext.projects.Update(oProject);
+                    _dbcontext.SaveChanges();
+                }
+            }
+            return Ok();
+        }
+        [HttpGet]
+        public IActionResult RateProject(int projectId)
+        {
+            var Rate = _dbcontext.project_rate.Where(m => m.projectId == projectId).Select(m => m.rate);
+            var per = ((Rate.Sum() / 30) / 10) * 100;
+            var countProject = Rate.Count();
+            dynamic oRate = new
+            {
+                persentage = per,
+                count = countProject,
+            };
+            return Ok(oRate);
         }
         #endregion
     }

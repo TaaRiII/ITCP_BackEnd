@@ -13,7 +13,7 @@
           // 3=MDA Reject
           // 4=Sectrait submit
           // 5=Sectrait reject
-          // 6=
+          // 6=Committee submit
         public int Status { get; set; }
          // list of policies in CSV
         public string? Policies { get; set; }

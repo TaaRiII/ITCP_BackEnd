@@ -85,25 +85,66 @@ namespace ITCPBackend.Controllers
             return Ok(UsersList);
         }
         [HttpPost]
-        public async Task<IActionResult> AddUpdateUser(UserModel user)
+        public async Task<IActionResult> AddUpdateUser(UserModel oUser)
         {
-            //if(user.Id != 0)
+            Users user = _dbcontext.Users.Where(m => m.Id == oUser.Id).First();
+            if (user.Id != 0)
+            {
+                
+                user.ModifyBy = "system";
+                user.CreatedDate = DateTime.Now;
+                _dbcontext.Users.Update(user);
+                await _dbcontext.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                user.CreatedBy = "System";
+                user.CreatedDate = DateTime.Now;
+                _dbcontext.Users.Add(user);
+                await _dbcontext.SaveChangesAsync();
+                return Ok();
+            }
+        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddUpdateDepartment(Department obj)
+        //{
+        //    if (obj.Id != 0)
+        //    {
+        //        obj.ModifyBy = "system";
+        //        obj.CreatedDate = DateTime.Now;
+        //        _dbcontext.departments.Update(obj);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        obj.CreatedBy = "System";
+        //        obj.CreatedDate = DateTime.Now;
+        //        _dbcontext.departments.Add(obj);
+        //        await _dbcontext.SaveChangesAsync();
+        //        return Ok();
+        //    }
+        //}
+        #region Client 
+        [HttpPost]
+        public IActionResult AddClient(UserModel user)
+        {
+            //Client client = new Client()
             //{
-            //    //Users userExist = _dbcontext.Users.Where(m => m.Id == user.Id).ToList();
-            //    //user.ModifyBy = "system";
-            //    //user.CreatedDate = DateTime.Now;
-            //    //_dbcontext.Users.Update(user);
-            //    //await _dbcontext.SaveChangesAsync();
-            //    return Ok();
-            //}
-            //else
-            //{
-            //    //user.CreatedBy = "System";
-            //    //user.CreatedDate = DateTime.Now;
-            //    //_dbcontext.Users.Add(user);
-            //    //await _dbcontext.SaveChangesAsync();
-            //    return Ok();
-            //}
+            //    CreatedBy = "System",
+            //    CreatedDate = DateTime.Now,
+            //    Email = objModel.Email,
+            //    Password = objModel.Password,
+            //    Name = objModel.Name,
+            //    PhoneNumber = objModel.PhoneNumber,
+            //    Username = objModel.Username,
+            //    status = Constants.Status.Active,
+            //    Role = objModel.Role,
+            //    MDAId = objModel.Role == Constants.ClientRoleInt.Entry ? objModel.MDAId : 0,
+            //};
+            //_dbcontext.clients.Add(client);
+            //_dbcontext.SaveChanges();
             string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var token = new JwtSecurityToken(accesstoken);
             var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
@@ -137,47 +178,6 @@ namespace ITCPBackend.Controllers
             }
             _dbcontext.clients.Add(userNew);
             _dbcontext.SaveChanges();
-            return Ok();
-        }
-        //[HttpPost]
-        //public async Task<IActionResult> AddUpdateDepartment(Department obj)
-        //{
-        //    if (obj.Id != 0)
-        //    {
-        //        obj.ModifyBy = "system";
-        //        obj.CreatedDate = DateTime.Now;
-        //        _dbcontext.departments.Update(obj);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        obj.CreatedBy = "System";
-        //        obj.CreatedDate = DateTime.Now;
-        //        _dbcontext.departments.Add(obj);
-        //        await _dbcontext.SaveChangesAsync();
-        //        return Ok();
-        //    }
-        //}
-        #region Client 
-        [HttpPost]
-        public IActionResult SignUpClient(SignupModel objModel)
-        {
-            Client client = new Client()
-            {
-                CreatedBy = "System",
-                CreatedDate = DateTime.Now,
-                Email = objModel.Email,
-                Password = objModel.Password,
-                Name = objModel.Name,
-                PhoneNumber = objModel.PhoneNumber,
-                Username = objModel.Username,
-                status = Constants.Status.Active,
-                Role = objModel.Role,
-                MDAId = objModel.Role == Constants.ClientRoleInt.Entry ? objModel.MDAId : 0,
-            };
-            _dbcontext.clients.Add(client);
-            _dbcontext.SaveChanges();
             //StringBuilder sb = new StringBuilder();
             //sb.AppendLine("Hello!");
             //sb.AppendLine("Dear your account on ITCP are created successfully below your credential!");
@@ -192,7 +192,7 @@ namespace ITCPBackend.Controllers
             //    EmailBody = "Account Create For ITCP",
             //};
             //SendEmail(setting);
-            var msg = "User Added Successfully";
+            var msg = "Client Added Successfully";
             return Ok(msg);
         }
         //[HttpPost]

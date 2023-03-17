@@ -932,6 +932,17 @@ namespace ITCPBackend.Controllers
             return Ok();
         }
         #endregion
-
+        #region Get MDA Name
+        [HttpGet]
+        public IActionResult GetMDAName() 
+        {
+            string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = new JwtSecurityToken(accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            var MDAId = _dbcontext.clients.Where(m => m.Id == claimsId).Select(m => m.MDAId).FirstOrDefault();
+            var MDAName = _dbcontext.clients.Where(m => m.Id == MDAId).FirstOrDefault();
+            return Ok(MDAName);
+        }
+        #endregion
     }
 }
