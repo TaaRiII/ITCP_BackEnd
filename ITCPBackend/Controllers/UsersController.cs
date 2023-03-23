@@ -13,6 +13,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using System.IdentityModel.Tokens.Jwt;
+using static ITCPBackend.Helper.Constants;
 
 namespace ITCPBackend.Controllers
 {
@@ -88,11 +89,19 @@ namespace ITCPBackend.Controllers
         public async Task<IActionResult> AddUpdateUser(UserModel oUser)
         {
             Users user = _dbcontext.Users.Where(m => m.Id == oUser.Id).First();
+            if(oUser.role == Constants.UserRoleInt.Committee)
+            {
+                var CommitteeCount = _dbcontext.Users.Where(m => m.role == Constants.UserRoleInt.Committee).Count();
+                if(CommitteeCount >= 30)
+                {
+                    return Ok("Committe members Limmit completed!");
+                }
+            }
             if (user.Id != 0)
             {
-                
                 user.ModifyBy = "system";
-                user.CreatedDate = DateTime.Now;
+                user.ModifyDate = DateTime.Now;
+                user.Status = 1;
                 _dbcontext.Users.Update(user);
                 await _dbcontext.SaveChangesAsync();
                 return Ok();
@@ -101,6 +110,7 @@ namespace ITCPBackend.Controllers
             {
                 user.CreatedBy = "System";
                 user.CreatedDate = DateTime.Now;
+                user.Status = 1;
                 _dbcontext.Users.Add(user);
                 await _dbcontext.SaveChangesAsync();
                 return Ok();
@@ -419,6 +429,32 @@ namespace ITCPBackend.Controllers
         {
             var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.MasterMDA).ToList();
             return Ok(EntryList);
+        }
+        #endregion
+        #region All List Of Users
+        [HttpGet]
+        public async Task<IActionResult> CommitteeMembersList()
+        {
+            var list = _dbcontext.Users.Where(m => m.role == Constants.UserRoleInt.Committee).ToList();
+            return Ok(list);
+        }
+        [HttpGet]
+        public async Task<IActionResult> EntryUserList()
+        {
+			//var list = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry).ToList();
+			var list = (from client in _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry)
+						from detail in _dbcontext.clients.Where(m => m.Id == client.Id)
+						select new EntryUserList
+						{
+                            Id = client.Id,
+                            mda = detail.Name,
+                            Name = detail.Name,
+                            PhoneNumber = client.PhoneNumber,
+                            Username = client.Username,
+                            Email = client.Email,
+                            status = client.status
+						}).ToList();
+			return Ok(list);
         }
         #endregion
     }
