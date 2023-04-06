@@ -44,7 +44,8 @@
              MDAReject = 3,
              SectApprove = 4,
              SectReject = 5,
-             Comeetee = 6
+             Comeetee = 6,
+             Management = 7,
         }
     }
 
