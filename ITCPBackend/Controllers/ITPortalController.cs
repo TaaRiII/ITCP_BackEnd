@@ -284,56 +284,118 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
-        public IActionResult FilteredCommitteeProjectList(int status, DateTime Fromdate, DateTime Todate, int entryUserId)
+        public IActionResult FilteredCommitteeProjectList(int status, string Fromdate, string Todate, int entryUserId)
         {
             try
             {
+                DateTime FromDate = new DateTime();
+                DateTime ToDate = new DateTime();
+                if (Fromdate != null && Todate != null)
+                {
+                    FromDate = DateTime.Parse(Fromdate);
+                    ToDate = DateTime.Parse(Todate);
+                }
                 if (status == -1)
                 {
-                    var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && entryUserId != 0 ? m.ClientId == entryUserId : true)
-                                          from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                          select new CompeteProjectDto
-                                          {
-                                              Id = project.Id,
-                                              MDA = project.MDA,
-                                              BudgetCode = project.BudgetCode,
-                                              MDASector = project.MDASector,
-                                              ProjectName = detail.ProjectName,
-                                              ProjectStatus = project.Status,
-                                              ProjectDescription = detail.ProjectDescription,
-                                              ProjectClassification = detail.ProjectClassification,
-                                              ProjectObjectives = detail.ProjectObjectives,
-                                              ProjectCreated = project.CreatedDate,
-                                              projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
-                                                                             project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
-                                                                             project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
-                                              persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
-                                              countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
-                                          }).ToList();
-                    return Ok(AllJoinProject);
+                    if(entryUserId == 0)
+                    {
+                        var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
+                                              from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                              select new CompeteProjectDto
+                                              {
+                                                  Id = project.Id,
+                                                  MDA = project.MDA,
+                                                  BudgetCode = project.BudgetCode,
+                                                  MDASector = project.MDASector,
+                                                  ProjectName = detail.ProjectName,
+                                                  ProjectStatus = project.Status,
+                                                  ProjectDescription = detail.ProjectDescription,
+                                                  ProjectClassification = detail.ProjectClassification,
+                                                  ProjectObjectives = detail.ProjectObjectives,
+                                                  ProjectCreated = project.CreatedDate,
+                                                  projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                                 project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                                 project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                                  persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                                  countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                              }).ToList();
+                        return Ok(AllJoinProject);
+                    }
+                    else
+                    {
+                        var AllJoinProject = (from project in _dbcontext.projects.Where(m => m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate && m.ClientId == entryUserId)
+                                              from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                              select new CompeteProjectDto
+                                              {
+                                                  Id = project.Id,
+                                                  MDA = project.MDA,
+                                                  BudgetCode = project.BudgetCode,
+                                                  MDASector = project.MDASector,
+                                                  ProjectName = detail.ProjectName,
+                                                  ProjectStatus = project.Status,
+                                                  ProjectDescription = detail.ProjectDescription,
+                                                  ProjectClassification = detail.ProjectClassification,
+                                                  ProjectObjectives = detail.ProjectObjectives,
+                                                  ProjectCreated = project.CreatedDate,
+                                                  projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                                 project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                                 project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                                  persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                                  countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                              }).ToList();
+                        return Ok(AllJoinProject);
+                    }
                 }
-                var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
-                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                   select new CompeteProjectDto
-                                   {
-                                       Id = project.Id,
-                                       MDA = project.MDA,
-                                       BudgetCode = project.BudgetCode,
-                                       MDASector = project.MDASector,
-                                       ProjectName = detail.ProjectName,
-                                       RejectNotes = project.RejectNotes,
-                                       ProjectDescription = detail.ProjectDescription,
-                                       ProjectStatus = project.Status,
-                                       ProjectClassification = detail.ProjectClassification,
-                                       ProjectObjectives = detail.ProjectObjectives,
-                                       ProjectCreated = project.CreatedDate,
-                                       projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
-                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
-                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
-                                       persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
-                                       countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
-                                   }).ToList();
-                return Ok(JoinProject);
+                if (entryUserId == 0)
+                {
+                    var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
+                                       from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                       select new CompeteProjectDto
+                                       {
+                                           Id = project.Id,
+                                           MDA = project.MDA,
+                                           BudgetCode = project.BudgetCode,
+                                           MDASector = project.MDASector,
+                                           ProjectName = detail.ProjectName,
+                                           RejectNotes = project.RejectNotes,
+                                           ProjectDescription = detail.ProjectDescription,
+                                           ProjectStatus = project.Status,
+                                           ProjectClassification = detail.ProjectClassification,
+                                           ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectCreated = project.CreatedDate,
+                                           projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                          project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                          project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                           persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                           countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                       }).ToList();
+                    return Ok(JoinProject);
+                }
+                else
+                {
+                    var JoinProject = (from project in _dbcontext.projects.Where(m => m.Status == status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate && m.ClientId == entryUserId)
+                                       from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                       select new CompeteProjectDto
+                                       {
+                                           Id = project.Id,
+                                           MDA = project.MDA,
+                                           BudgetCode = project.BudgetCode,
+                                           MDASector = project.MDASector,
+                                           ProjectName = detail.ProjectName,
+                                           RejectNotes = project.RejectNotes,
+                                           ProjectDescription = detail.ProjectDescription,
+                                           ProjectStatus = project.Status,
+                                           ProjectClassification = detail.ProjectClassification,
+                                           ProjectObjectives = detail.ProjectObjectives,
+                                           ProjectCreated = project.CreatedDate,
+                                           projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                          project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                          project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : "",
+                                           persentage = _dbcontext.project_rate.Where(m => m.projectId == project.Id).Select(m => m.rate).Sum() / (30.0 * 10) * 100,
+                                           countCommittee = _dbcontext.project_rate.Count(m => m.projectId == project.Id)
+                                       }).ToList();
+                    return Ok(JoinProject);
+                }
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NuGet.Common;
+using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -456,23 +457,32 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
-        public IActionResult FilteredProjectList(int status, DateTime Fromdate, DateTime Todate, int entryUserId)
+        public IActionResult FilteredProjectList(int status, string Fromdate, string Todate, int entryUserId)
         {
             try 
             {
                 string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 var token = new JwtSecurityToken(accesstoken);
                 var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
-                var ClientModel = _dbcontext.clients.Where(m => m.Id == claimsId).FirstOrDefault(); 
+                var ClientModel = _dbcontext.clients.Where(m => m.Id == claimsId).FirstOrDefault();
+                DateTime FromDate = new DateTime();
+                DateTime ToDate = new DateTime();
+                if (Fromdate != null && Todate != null)
+                {
+                    FromDate = DateTime.Parse(Fromdate);
+                    ToDate = DateTime.Parse(Todate);
+                }
                 if (status == -1)
                 {
                     IList<CompeteProjectDto> AllJoinProject = null;
                     if (ClientModel != null)
                     {
-                        if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                        if(entryUserId == 0) 
                         {
-                            List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
-                            AllJoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && entryUserId != 0 ? m.ClientId == entryUserId : true)
+                            if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                            {
+                                List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
+                                AllJoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
                                                   from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                                   select new CompeteProjectDto
                                                   {
@@ -490,10 +500,32 @@ namespace ITCPBackend.Controllers
                                                                                      project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
                                                                                      project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
                                                   }).ToList();
+                            }
+                            else
+                            {
+                                AllJoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate && entryUserId != 0 ? m.ClientId == entryUserId : true)
+                                                  from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                                  select new CompeteProjectDto
+                                                  {
+                                                      Id = project.Id,
+                                                      MDA = project.MDA,
+                                                      BudgetCode = project.BudgetCode,
+                                                      MDASector = project.MDASector,
+                                                      ProjectName = detail.ProjectName,
+                                                      ProjectStatus = project.Status,
+                                                      ProjectDescription = detail.ProjectDescription,
+                                                      ProjectClassification = detail.ProjectClassification,
+                                                      ProjectObjectives = detail.ProjectObjectives,
+                                                      ProjectCreated = project.CreatedDate,
+                                                      projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                                     project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                                     project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                                  }).ToList();
+                            }
                         }
                         else
                         {
-                            AllJoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && entryUserId != 0 ? m.ClientId == entryUserId : true)
+                            AllJoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == entryUserId && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate )
                                               from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                               select new CompeteProjectDto
                                               {
@@ -518,10 +550,12 @@ namespace ITCPBackend.Controllers
                 IList<CompeteProjectDto> JoinProject = null;
                 if (ClientModel != null)
                 {
-                    if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                    if(entryUserId == 0)
                     {
-                        List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
-                        JoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.Status == status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                        if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                        {
+                            List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
+                            JoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.Status == status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
                                            from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                            select new CompeteProjectDto
                                            {
@@ -540,10 +574,33 @@ namespace ITCPBackend.Controllers
                                                                               project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
                                                                               project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
                                            }).ToList();
+                        }
+                        else
+                        {
+                            JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.Status == status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
+                                           from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                           select new CompeteProjectDto
+                                           {
+                                               Id = project.Id,
+                                               MDA = project.MDA,
+                                               BudgetCode = project.BudgetCode,
+                                               MDASector = project.MDASector,
+                                               ProjectName = detail.ProjectName,
+                                               RejectNotes = project.RejectNotes,
+                                               ProjectDescription = detail.ProjectDescription,
+                                               ProjectStatus = project.Status,
+                                               ProjectClassification = detail.ProjectClassification,
+                                               ProjectObjectives = detail.ProjectObjectives,
+                                               ProjectCreated = project.CreatedDate,
+                                               projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                              project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                              project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                           }).ToList();
+                        }
                     }
                     else
                     {
-                        JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.Status == status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate)
+                        JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == entryUserId && m.Status == status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
                                        from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                        select new CompeteProjectDto
                                        {
@@ -718,15 +775,17 @@ namespace ITCPBackend.Controllers
             }
         }
         [HttpGet]
-        public IActionResult ProjectFiterProgressList(int status, DateTime? Fromdate, DateTime? Todate, int entryUserId)
+        public IActionResult ProjectFiterProgressList(int status, int entryUserId, string Fromdate , string Todate)
         {
             try
             {
-                //if(Fromdate != null && Todate != null)
-                //{
-                //    FromDate = DateTime.Parse(Fromdate);
-                //    ToDate = DateTime.Parse(Todate);
-                //}
+                DateTime FromDate = new DateTime();
+                DateTime ToDate = new DateTime();
+                if (Fromdate != null && Todate != null)
+                {
+                    FromDate = DateTime.Parse(Fromdate);
+                    ToDate = DateTime.Parse(Todate);
+                }
                 string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 var token = new JwtSecurityToken(accesstoken);
                 var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
@@ -734,32 +793,57 @@ namespace ITCPBackend.Controllers
                 IList<CompeteProjectDto> JoinProject = null;
                 if (ClientModel != null)
                 {
-                    if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                    if (entryUserId == 0)
                     {
-                        List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
-                        JoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.Status >= status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && m.ClientId == entryUserId)
-                                       from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
-                                       select new CompeteProjectDto
-                                       {
-                                           Id = project.Id,
-                                           MDA = project.MDA,
-                                           BudgetCode = project.BudgetCode,
-                                           MDASector = project.MDASector,
-                                           ProjectName = detail.ProjectName,
-                                           ProjectDescription = detail.ProjectDescription,
-                                           RejectNotes = project.RejectNotes,
-                                           ProjectClassification = detail.ProjectClassification,
-                                           ProjectObjectives = detail.ProjectObjectives,
-                                           ProjectStatus = project.Status,
-                                           ProjectCreated = project.CreatedDate,
-                                           projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
-                                                                          project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
-                                                                          project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
-                                       }).ToList();
+                        if (ClientModel.Role == Constants.ClientRoleInt.MasterMDA)
+                        {
+                            List<int> ids = _dbcontext.clients.Where(m => m.MDAId == ClientModel.Id).Select(m => m.Id).ToList();
+                            JoinProject = (from project in _dbcontext.projects.Where(m => ids.Contains(m.ClientId) && m.Status >= status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate && m.ClientId == entryUserId)
+                                           from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                           select new CompeteProjectDto
+                                           {
+                                               Id = project.Id,
+                                               MDA = project.MDA,
+                                               BudgetCode = project.BudgetCode,
+                                               MDASector = project.MDASector,
+                                               ProjectName = detail.ProjectName,
+                                               ProjectDescription = detail.ProjectDescription,
+                                               RejectNotes = project.RejectNotes,
+                                               ProjectClassification = detail.ProjectClassification,
+                                               ProjectObjectives = detail.ProjectObjectives,
+                                               ProjectStatus = project.Status,
+                                               ProjectCreated = project.CreatedDate,
+                                               projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                              project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                              project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                           }).ToList();
+                        }
+                        else
+                        {
+                            JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.Status >= status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate && m.ClientId == entryUserId)
+                                           from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
+                                           select new CompeteProjectDto
+                                           {
+                                               Id = project.Id,
+                                               MDA = project.MDA,
+                                               BudgetCode = project.BudgetCode,
+                                               MDASector = project.MDASector,
+                                               ProjectName = detail.ProjectName,
+                                               ProjectDescription = detail.ProjectDescription,
+                                               RejectNotes = project.RejectNotes,
+                                               ProjectClassification = detail.ProjectClassification,
+                                               ProjectObjectives = detail.ProjectObjectives,
+                                               ProjectStatus = project.Status,
+                                               ProjectCreated = project.CreatedDate,
+                                               projectLevel = project.Status == (int)Constants.ProjectStatus.MDApprove ? "Level 1" :
+                                                                              project.Status == (int)Constants.ProjectStatus.SectApprove ? "Level 2" :
+                                                                              project.Status == (int)Constants.ProjectStatus.Comeetee ? "Level 3" : ""
+                                           }).ToList();
+                        }
                     }
                     else
                     {
-                        JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == ClientModel.Id && m.Status >= status && m.CreatedDate.Date >= Fromdate && m.CreatedDate.Date <= Todate && m.ClientId == entryUserId)
+                        JoinProject = (from project in _dbcontext.projects.Where(m => m.ClientId == entryUserId && m.Status >= status && m.CreatedDate.Date >= FromDate && m.CreatedDate.Date <= ToDate)
                                        from detail in _dbcontext.project_details.Where(m => m.ProjectId == project.Id).DefaultIfEmpty()
                                        select new CompeteProjectDto
                                        {
@@ -830,14 +914,19 @@ namespace ITCPBackend.Controllers
         {
             try
             {
-                var all = _dbcontext.projects.Count();
-                var submit = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Submit).Count();
-                var draft = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Draft).Count();
-                var sectRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectReject).Count();
-                var mdaRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDAReject).Count();
-                var mdaApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDApprove).Count();
-                var sectApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectApprove).Count();
-                var commitee = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Comeetee).Count();
+                string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = new JwtSecurityToken(accesstoken);
+                var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+                var EntryIds = _dbcontext.clients.Where(m => m.MDAId == claimsId).Select(m => m.Id).ToList();
+                var all = _dbcontext.projects.Where(m => EntryIds.Contains(m.ClientId)).Count();
+                var submit = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Submit && EntryIds.Contains(m.ClientId)).Count();
+                var draft = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Draft && EntryIds.Contains(m.ClientId)).Count();
+                var sectRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectReject && EntryIds.Contains(m.ClientId)).Count();
+                var mdaRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDAReject && EntryIds.Contains(m.ClientId)).Count();
+                var mdaApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDApprove && EntryIds.Contains(m.ClientId)).Count();
+                var sectApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectApprove && EntryIds.Contains(m.ClientId)).Count();
+                var commitee = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Comeetee && EntryIds.Contains(m.ClientId)).Count();
+                var management = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Management && EntryIds.Contains(m.ClientId)).Count();
                 var Allcount = new
                 {
                     all = all,
@@ -848,6 +937,7 @@ namespace ITCPBackend.Controllers
                     mdaApprove = mdaApprove,
                     sectApprove = sectApprove,
                     commitee = commitee,
+                    management = management,
                 };
                 return Ok(Allcount);
             }
@@ -880,7 +970,10 @@ namespace ITCPBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> EntryUsersList()
         {
-            var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry).ToList();
+            string accesstoken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = new JwtSecurityToken(accesstoken);
+            var claimsId = int.Parse(token.Claims.First(claim => claim.Type == "id").Value);
+            var EntryList = _dbcontext.clients.Where(m => m.Role == Constants.ClientRoleInt.Entry && m.MDAId == claimsId).ToList();
             return Ok(EntryList);
         }
         [HttpGet]
