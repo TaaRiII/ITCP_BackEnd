@@ -27,6 +27,41 @@ namespace ITCPBackend.Controllers
             return Ok(EntryList);
         }
         #endregion
+        #region Dasboard Counts
+        [HttpGet]
+        public async Task<IActionResult> CountsDashboard()
+        {
+            try
+            {
+                var all = _dbcontext.projects.Count();
+                var submit = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Submit).Count();
+                var draft = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Draft).Count();
+                var sectRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectReject).Count();
+                var mdaRejected = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDAReject).Count();
+                var mdaApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.MDApprove).Count();
+                var sectApprove = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.SectApprove).Count();
+                var commitee = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Comeetee).Count();
+                var management = _dbcontext.projects.Where(m => m.Status == (int)Constants.ProjectStatus.Management).Count();
+                var Allcount = new
+                {
+                    all = all,
+                    submit = submit,
+                    draft = draft,
+                    sectRejected = sectRejected,
+                    mdaRejected = mdaRejected,
+                    mdaApprove = mdaApprove,
+                    sectApprove = sectApprove,
+                    commitee = commitee,
+                    management = management,
+                };
+                return Ok(Allcount);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        #endregion
         #region Dashboard Graphies data
         [HttpGet]
         public IEnumerable<ChartData> GetProjectChartData()
